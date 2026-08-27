@@ -74,7 +74,19 @@ def run_detection(image_path: str, crop_type: str, conf_threshold: float = 0.25)
         names = result.names  # {class_id: "label"}
         for box in boxes:
             cls_id = int(box.cls[0])
-            cls_name = names.get(cls_id, str(cls_id)).lower()
+            raw_name = names.get(cls_id, str(cls_id)).lower().strip().replace(" ", "_")
+            if raw_name == "northern_leaf_blight":
+                norm_name = "northern_blight"
+            elif raw_name == "leaf_curl_virus":
+                norm_name = "leaf_curl"
+            elif raw_name == "septoria_leaf_spot":
+                norm_name = "septoria"
+            elif raw_name in ("gray_leaf_spot", "grey_leaf_spot"):
+                norm_name = "gray_leaf_spot"
+            else:
+                norm_name = raw_name
+
+            cls_name = f"{crop_type}_{norm_name}" if not norm_name.startswith(f"{crop_type}_") else norm_name
             x_c, y_c, w, h = box.xywh[0].tolist()
             conf = float(box.conf[0])
 

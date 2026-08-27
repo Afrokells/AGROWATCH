@@ -112,6 +112,7 @@ class Command(BaseCommand):
             {'crop_type': 'maize', 'condition_id': 'maize_healthy', 'label': 'Healthy', 'severity': 'none'},
             {'crop_type': 'maize', 'condition_id': 'maize_fall_armyworm', 'label': 'Fall Armyworm', 'severity': 'high'},
             {'crop_type': 'maize', 'condition_id': 'maize_northern_blight', 'label': 'Northern Leaf Blight', 'severity': 'medium'},
+            {'crop_type': 'maize', 'condition_id': 'maize_common_rust', 'label': 'Common Rust', 'severity': 'medium'},
             {'crop_type': 'maize', 'condition_id': 'maize_grey_leaf_spot', 'label': 'Gray Leaf Spot', 'severity': 'medium'},
             
             {'crop_type': 'pineapple', 'condition_id': 'pineapple_healthy', 'label': 'Healthy', 'severity': 'none'},

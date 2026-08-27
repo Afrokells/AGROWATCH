@@ -4,7 +4,7 @@ import { ArrowLeft, CheckCircle, AlertTriangle, Target, Activity, FileText } fro
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Badge from '../../components/UI/Badge';
-import { scansAPI } from '../../services/api';
+import { API_ORIGIN, scansAPI } from '../../services/api';
 import { CROP_ICONS, DISEASE_CONDITIONS } from '../../data/constants';
 
 export default function ScanResults() {
@@ -76,7 +76,7 @@ export default function ScanResults() {
           <div style={{ 
             height: 400, background: 'var(--bg-input)', position: 'relative',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backgroundImage: `url("${scan.image ? (scan.image.startsWith('http') ? scan.image : `http://127.0.0.1:8000${scan.image}`) : 'https://images.unsplash.com/photo-1592982537447-6f2b6a061419?auto=format&fit=crop&q=80&w=1000'}")`,
+            backgroundImage: `url("${scan.image ? (scan.image.startsWith('http') ? scan.image : `${API_ORIGIN}${scan.image}`) : 'https://images.unsplash.com/photo-1592982537447-6f2b6a061419?auto=format&fit=crop&q=80&w=1000'}")`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             borderRadius: '0 0 var(--radius-lg) var(--radius-lg)',
@@ -86,9 +86,16 @@ export default function ScanResults() {
             <p style={{ color: 'white', position: 'relative', zIndex: 1, textShadow: '0 2px 4px rgba(0,0,0,0.8)', fontWeight: 500 }}>
               {scan.image ? 'AI Crop Analysis Overlay' : 'Interactive Map View (Simulated)'}
             </p>
-            {/* Simulated bounding boxes for visual effect if we have detections */}
             {scan.detections?.slice(0, 50).map((det, i) => {
-              const diseaseFlag = Object.values(DISEASE_CONDITIONS).flat().find(d => d.id === (det.disease_flag_id || det.disease_flag?.id)) || { severity: 'none', label: 'Unknown' };
+              const flagId = det.disease_flag_id || det.disease_flag?.id || '';
+              const isHealthy = !flagId || flagId.includes('healthy');
+              const diseaseFlag = isHealthy
+                ? { severity: 'none', label: 'Healthy' }
+                : Object.values(DISEASE_CONDITIONS).flat().find(d => {
+                    const normFlag = flagId.toLowerCase().replace(/[- ]/g, '_');
+                    const normId = (d.id || '').toLowerCase().replace(/[- ]/g, '_');
+                    return normId === normFlag || normFlag.includes(normId) || normId.includes(normFlag);
+                  }) || { severity: 'medium', label: flagId.replace(/_/g, ' ') };
               return (
               <div key={i} style={{
                 position: 'absolute',

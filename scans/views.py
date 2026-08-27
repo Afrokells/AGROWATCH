@@ -105,18 +105,15 @@ class ScanViewSet(viewsets.ModelViewSet):
                 scan.save()
 
             except Exception as exc:
-                # ML not available — fall back to simulated data passed from frontend
                 import traceback
-                print(f"[AgroWatch ML] Inference failed, using simulated data. Error: {exc}")
+                print(f"[AgroWatch ML] Inference failed. Error: {exc}")
                 traceback.print_exc()
-
-                # Update from body fields if frontend sent simulated values
-                scan.total_plants      = int(request.data.get("total_plants",  scan.total_plants))
-                scan.disease_flags     = int(request.data.get("disease_flags", scan.disease_flags))
-                scan.identity_switches = int(request.data.get("identity_switches", scan.identity_switches))
-                scan.mota              = float(request.data.get("mota", scan.mota or 0))
-                scan.status            = "completed"
+                scan.status = "failed"
                 scan.save()
+                return Response(
+                    {"detail": "Image analysis failed. Check the server logs for the inference error."},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                )
             finally:
                 # Clean up temp files
                 for path in tmp_paths:

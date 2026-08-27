@@ -28,16 +28,35 @@ export default function DiagnosisReport() {
           if (found.detections) {
             found.detections.forEach(det => {
               const flagId = det.disease_flag_id || '';
-              if (flagId === 'healthy' || flagId === '') return;
+              if (!flagId || flagId === 'healthy' || flagId.endsWith('_healthy') || flagId.includes('healthy')) return;
 
-              // Match against DISEASE_CONDITIONS by id or by partial match
-              const condition = cropConditions.find(c =>
-                c.id === flagId ||
-                c.id === `${found.crop_type}_${flagId}` ||
-                c.label.toLowerCase().replace(/\s+/g, '_') === flagId
-              );
+              const normFlag = flagId.toLowerCase().replace(/[- ]/g, '_');
 
-              const key = flagId;
+              // Match against DISEASE_CONDITIONS by exact id, alias, or fuzzy category match
+              const condition = cropConditions.find(c => {
+                const normCId = (c.id || '').toLowerCase().replace(/[- ]/g, '_');
+                const normLabel = (c.label || '').toLowerCase().replace(/[- ]/g, '_');
+                const cropPrefix = `${found.crop_type}_`;
+
+                return normCId === normFlag ||
+                       normCId === `${cropPrefix}${normFlag}` ||
+                       normFlag === `${cropPrefix}${normCId}` ||
+                       normFlag.replace(cropPrefix, '') === normCId.replace(cropPrefix, '') ||
+                       normLabel === normFlag ||
+                       normLabel === normFlag.replace(cropPrefix, '') ||
+                       (normFlag.includes('northern') && normCId.includes('northern')) ||
+                       (normFlag.includes('rust') && normCId.includes('rust')) ||
+                       ((normFlag.includes('gray') || normFlag.includes('grey')) && (normCId.includes('gray') || normCId.includes('grey'))) ||
+                       (normFlag.includes('armyworm') && normCId.includes('armyworm')) ||
+                       (normFlag.includes('late_blight') && normCId.includes('late_blight')) ||
+                       (normFlag.includes('leaf_curl') && normCId.includes('leaf_curl')) ||
+                       (normFlag.includes('septoria') && normCId.includes('septoria')) ||
+                       (normFlag.includes('bacterial') && normCId.includes('bacterial')) ||
+                       (normFlag.includes('mealybug') && normCId.includes('mealybug')) ||
+                       (normFlag.includes('heart_rot') && normCId.includes('heart_rot'));
+              });
+
+              const key = condition ? condition.id : flagId;
               if (!groups[key]) {
                 groups[key] = {
                   condition: condition || {

@@ -182,6 +182,15 @@ export const DISEASE_CONDITIONS = {
       recommendation: 'Apply Propiconazole 25% EC (0.5 mL/L) or Mancozeb 80% WP (2.5 g/L). Improve field drainage. Plant resistant hybrid varieties in future seasons. Crop rotation recommended.',
     },
     {
+      id: 'maize_common_rust',
+      label: 'Common Rust',
+      pathogen: 'Puccinia sorghi',
+      severity: 'medium',
+      color: 'amber',
+      description: 'Small, circular to elongate powdery pustules on both upper and lower leaf surfaces, reddish-brown to dark brown in colour.',
+      recommendation: 'Apply Mancozeb 80% WP (2.5 g/L) or Azoxystrobin 25% SC (0.75 mL/L) at first symptom appearance. Plant resistant hybrids in future seasons. Avoid high plant densities in humid areas.',
+    },
+    {
       id: 'maize_grey_leaf_spot',
       label: 'Gray Leaf Spot',
       pathogen: 'Cercospora zeae-maydis',

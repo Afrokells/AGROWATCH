@@ -19,12 +19,44 @@ MODEL_PATHS = {
     "pineapple": WEIGHTS_DIR / "pineapple.onnx",
 }
 
-# Class names per crop — must match ONNX output order
+# Class names per crop — matches YOLOv8 / ONNX trained classes in exact order
 CLASS_NAMES = {
     "tomato":    ["tomato_healthy", "tomato_late_blight", "tomato_leaf_curl", "tomato_septoria", "tomato_bacterial_spot"],
-    "maize":     ["maize_healthy", "maize_fall_armyworm", "maize_northern_blight", "maize_grey_leaf_spot"],
+    "maize":     ["maize_healthy", "maize_northern_blight", "maize_common_rust", "maize_gray_leaf_spot"],
     "pineapple": ["pineapple_healthy", "pineapple_mealybug_wilt", "pineapple_heart_rot"],
 }
+
+def _get_class_names(crop_type: str, session: Any) -> List[str]:
+    """Extract and normalize class names directly from ONNX model metadata if present."""
+    try:
+        meta = session.get_modelmeta().custom_metadata_map
+        if "names" in meta:
+            import ast
+            raw_names = ast.literal_eval(meta["names"])
+            sorted_keys = sorted(raw_names.keys())
+            names = []
+            for k in sorted_keys:
+                raw_label = str(raw_names[k]).lower().strip().replace(" ", "_")
+                # Normalize specific naming conventions
+                if raw_label == "northern_leaf_blight":
+                    norm_label = "northern_blight"
+                elif raw_label == "leaf_curl_virus":
+                    norm_label = "leaf_curl"
+                elif raw_label == "septoria_leaf_spot":
+                    norm_label = "septoria"
+                elif raw_label in ("gray_leaf_spot", "grey_leaf_spot"):
+                    norm_label = "gray_leaf_spot"
+                else:
+                    norm_label = raw_label
+
+                if not norm_label.startswith(f"{crop_type}_"):
+                    norm_label = f"{crop_type}_{norm_label}"
+                names.append(norm_label)
+            if names:
+                return names
+    except Exception:
+        pass
+    return CLASS_NAMES.get(crop_type, [])
 
 # ── Session cache (loaded once per worker) ────────────────────────────────────
 _session_cache: Dict[str, Any] = {}
@@ -66,7 +98,7 @@ def _preprocess(img_path: str):
 
 def _postprocess(output: np.ndarray, num_classes: int,
                  scale: float, pad_left: int, pad_top: int,
-                 orig_shape):
+                 orig_shape, conf_threshold: float = CONF_THRESHOLD):
     """
     Parse raw ONNX output (1, 4+num_classes, 8400) → list of dicts.
     Returns [{'x', 'y', 'w', 'h', 'confidence', 'class_id', 'class_name'}]
@@ -82,7 +114,7 @@ def _postprocess(output: np.ndarray, num_classes: int,
     class_ids   = class_scores.argmax(axis=0)
     confidences = class_scores.max(axis=0)
 
-    mask = confidences >= CONF_THRESHOLD
+    mask = confidences >= conf_threshold
     if not mask.any():
         return []
 
@@ -103,7 +135,7 @@ def _postprocess(output: np.ndarray, num_classes: int,
     cv_boxes  = np.stack([x1, y1, x2 - x1, y2 - y1], axis=1).tolist()
     cv_scores = confidences.tolist()
 
-    indices = cv2.dnn.NMSBoxes(cv_boxes, cv_scores, CONF_THRESHOLD, IOU_THRESHOLD)
+    indices = cv2.dnn.NMSBoxes(cv_boxes, cv_scores, conf_threshold, IOU_THRESHOLD)
     if len(indices) == 0:
         return []
     indices = indices.flatten()
@@ -256,8 +288,8 @@ def run_tracking(image_paths: List[str], crop_type: str,
             "mota_approx":        float,
         }
     """
-    session    = _load_session(crop_type)
-    names      = CLASS_NAMES.get(crop_type, [])
+    session     = _load_session(crop_type)
+    names       = _get_class_names(crop_type, session)
     num_classes = len(names)
     input_name  = session.get_inputs()[0].name
     tracker     = _SimpleTracker()
@@ -270,7 +302,9 @@ def run_tracking(image_paths: List[str], crop_type: str,
     for frame_idx, img_path in enumerate(image_paths):
         tensor, scale, pad_left, pad_top, orig_shape = _preprocess(img_path)
         outputs = session.run(None, {input_name: tensor})
-        raw_dets = _postprocess(outputs[0], num_classes, scale, pad_left, pad_top, orig_shape)
+        raw_dets = _postprocess(
+            outputs[0], num_classes, scale, pad_left, pad_top, orig_shape, conf_threshold
+        )
 
         tracked = tracker.update(raw_dets)
         gt_count += len(tracked)
