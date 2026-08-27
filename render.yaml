@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: agrowatch-api
+    env: python
+    buildCommand: pip install -r requirements.txt && python manage.py makemigrations && python manage.py migrate && python manage.py seed_db && python manage.py collectstatic --noinput
+    startCommand: gunicorn config.wsgi:application --workers 1 --threads 2 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: SECRET_KEY
+        generateValue: true

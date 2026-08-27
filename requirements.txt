@@ -1,0 +1,9 @@
+django>=5.0,<6.1
+djangorestframework
+django-cors-headers
+pillow
+opencv-python-headless
+onnxruntime
+scipy
+gunicorn
+whitenoise
