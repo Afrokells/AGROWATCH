@@ -112,7 +112,7 @@ export default function AdminPortal() {
       </div>
 
       {/* Navigation Tabs */}
-      <div style={{ display: 'flex', gap: 'var(--sp-3)', borderBottom: '1px solid var(--border)', paddingBottom: 'var(--sp-3)' }}>
+      <div className="filter-scroll" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 'var(--sp-3)' }}>
         <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')}>
           Overview & Metrics
         </TabButton>
@@ -131,7 +131,7 @@ export default function AdminPortal() {
       {activeTab === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
           {/* Key Metric Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--sp-6)' }}>
+          <div className="grid-stats">
             <AdminStatCard 
               icon={<Users size={24} />} 
               label="Total Users" 
@@ -162,7 +162,7 @@ export default function AdminPortal() {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-6)' }}>
+          <div className="grid-2">
             {/* System Outbreak Monitor */}
             <Card style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
               <h3 style={{ fontSize: '1.125rem', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
@@ -255,7 +255,7 @@ export default function AdminPortal() {
           </div>
 
           {/* Users Table */}
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-container">
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--text-muted)' }}>
@@ -298,7 +298,7 @@ export default function AdminPortal() {
       {activeTab === 'farms' && (
         <Card style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
           <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-2)' }}>All Registered Farm Plots Across Ghana</h3>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-container">
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--text-muted)' }}>
@@ -331,7 +331,7 @@ export default function AdminPortal() {
       {activeTab === 'scans' && (
         <Card style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
           <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-2)' }}>All System Drone Scans</h3>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-container">
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--text-muted)' }}>

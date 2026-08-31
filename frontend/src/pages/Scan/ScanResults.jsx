@@ -61,20 +61,22 @@ export default function ScanResults() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--sp-4)' }}>
+      <div className="grid-stats">
         <MetricCard label="Total Plants Detected" value={scan.total_plants} icon={<Target size={20} />} />
         <MetricCard label="Disease Flags" value={scan.disease_flags} icon={<AlertTriangle size={20} />} color={scan.disease_flags > 0 ? 'danger' : 'accent'} />
         <MetricCard label="Detection F1-Score" value={(scan.f1_score * 100).toFixed(1) + '%'} icon={<Activity size={20} />} />
         <MetricCard label="Tracking MOTA" value={(scan.mota * 100).toFixed(1) + '%'} icon={<CheckCircle size={20} />} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 'var(--sp-6)' }}>
+      <div className="grid-scan-results">
         <Card style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: 'var(--sp-4) var(--sp-6)', borderBottom: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)' }}>
             <h3 style={{ fontSize: '1rem' }}>Field Orthomosaic Map</h3>
           </div>
           <div style={{ 
-            height: 400, background: 'var(--bg-input)', position: 'relative',
+            minHeight: 260,
+            height: 'clamp(260px, 40vw, 400px)',
+            background: 'var(--bg-input)', position: 'relative',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             backgroundImage: `url("${scan.image ? (scan.image.startsWith('http') ? scan.image : `${API_ORIGIN}${scan.image}`) : 'https://images.unsplash.com/photo-1592982537447-6f2b6a061419?auto=format&fit=crop&q=80&w=1000'}")`,
             backgroundSize: 'cover',

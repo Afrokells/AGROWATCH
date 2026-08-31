@@ -83,7 +83,7 @@ export default function CreateListing() {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-4)' }}>
+          <div className="grid-2" style={{ gap: 'var(--sp-4)' }}>
             <div>
               <label style={{ display: 'block', marginBottom: 'var(--sp-2)', fontWeight: 500, fontSize: '0.875rem' }}>Quantity (kg)</label>
               <input 
@@ -133,7 +133,7 @@ export default function CreateListing() {
             />
           </div>
 
-          <div style={{ marginTop: 'var(--sp-2)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--sp-3)' }}>
+          <div style={{ marginTop: 'var(--sp-2)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--sp-3)', flexWrap: 'wrap' }}>
             <Button type="button" variant="ghost" onClick={() => navigate('/market')} disabled={isSubmitting}>Cancel</Button>
             <Button type="submit" variant="primary" icon={<Save size={18} />} loading={isSubmitting}>Publish Listing</Button>
           </div>

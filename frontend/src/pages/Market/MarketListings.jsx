@@ -87,7 +87,7 @@ export default function MarketListings() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 'var(--sp-3)', overflowX: 'auto', paddingBottom: 'var(--sp-2)' }}>
+      <div className="filter-scroll">
         <FilterButton active={filter === 'all'} onClick={() => setFilter('all')}>All Crops</FilterButton>
         <FilterButton active={filter === 'tomato'} onClick={() => setFilter('tomato')}>Tomatoes</FilterButton>
         <FilterButton active={filter === 'maize'} onClick={() => setFilter('maize')}>Maize</FilterButton>
@@ -100,7 +100,7 @@ export default function MarketListings() {
           {[1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 200, borderRadius: 'var(--radius-lg)' }}></div>)}
         </div>
       ) : listings.length === 0 ? (
-        <Card style={{ textAlign: 'center', padding: 'var(--sp-12)' }}>
+        <Card style={{ textAlign: 'center', padding: 'clamp(var(--sp-8), 6vw, var(--sp-12))' }}>
           <ShoppingBasket size={48} style={{ color: 'var(--text-muted)', margin: '0 auto var(--sp-4)' }} />
           <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-2)' }}>
             {isFarmer ? 'No Products Listed' : 'No Listings Found'}
@@ -117,7 +117,7 @@ export default function MarketListings() {
           )}
         </Card>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--sp-6)' }}>
+        <div className="grid-auto">
           {listings.map(listing => (
             <Card key={listing.id} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)', padding: 'var(--sp-5)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

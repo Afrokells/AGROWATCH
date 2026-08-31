@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { MessageCircle, Send, CheckCheck, Bell } from 'lucide-react';
+import { MessageCircle, Send, CheckCheck, Bell, ArrowLeft } from 'lucide-react';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -144,9 +144,29 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 'var(--sp-6)', flex: 1, minHeight: 0 }}>
+      <div className="messages-layout-grid" style={{ flex: 1, minHeight: 0 }}>
+        <style>{`
+          .messages-layout-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: var(--sp-6);
+          }
+          @media (max-width: 768px) {
+            .messages-layout-grid {
+              display: flex;
+              flex-direction: column;
+            }
+            .messages-left-panel.hide-mobile {
+              display: none !important;
+            }
+            .messages-right-panel.hide-mobile {
+              display: none !important;
+            }
+          }
+        `}</style>
+
         {/* Left sidebar: threads + notifications */}
-        <Card style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+        <Card className={`messages-left-panel ${selectedThread ? 'hide-mobile' : ''}`} style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden', height: '100%' }}>
           {/* Tabs */}
           <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
             {[
@@ -219,7 +239,7 @@ export default function MessagesPage() {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)', truncate: true }}>
+                          <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }} className="truncate">
                             {other}
                           </span>
                           {thread.last_message && (
@@ -298,29 +318,42 @@ export default function MessagesPage() {
         </Card>
 
         {/* Right panel: chat view */}
-        <Card style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+        <Card className={`messages-right-panel ${!selectedThread ? 'hide-mobile' : ''}`} style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden', height: '100%' }}>
           {!selectedThread ? (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', gap: 'var(--sp-3)' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', gap: 'var(--sp-3)', padding: 'var(--sp-8)' }}>
               <MessageCircle size={48} />
               <p style={{ fontSize: '0.9375rem' }}>Select a conversation to start chatting</p>
             </div>
           ) : (
             <>
               {/* Chat header */}
-              <div style={{ padding: 'var(--sp-4) var(--sp-5)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
+              <div style={{ padding: 'var(--sp-3) var(--sp-4)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
+                <button
+                  onClick={() => setSelectedThread(null)}
+                  className="mobile-only"
+                  style={{
+                    width: 32, height: 32, borderRadius: 'var(--radius-sm)',
+                    background: 'var(--bg-input)', border: '1px solid var(--border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0
+                  }}
+                  title="Back to conversation list"
+                >
+                  <ArrowLeft size={16} />
+                </button>
                 <div style={{
-                  width: 38, height: 38, borderRadius: '50%',
+                  width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
                   background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontWeight: 700, fontSize: '0.875rem', color: 'var(--accent)',
                 }}>
                   {getOtherParty(selectedThread)?.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }} className="truncate">
                     {getOtherParty(selectedThread)}
                   </div>
                   {selectedThread.listing_crop && (
-                    <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
+                    <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', textTransform: 'capitalize' }} className="truncate">
                       Re: {selectedThread.listing_crop} listing
                     </div>
                   )}
@@ -343,7 +376,7 @@ export default function MessagesPage() {
                     return (
                       <div key={msg.id} style={{ display: 'flex', justifyContent: isMine ? 'flex-end' : 'flex-start' }}>
                         <div style={{
-                          maxWidth: '70%',
+                          maxWidth: 'min(85%, 480px)',
                           padding: 'var(--sp-3) var(--sp-4)',
                           borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                           background: isMine ? 'var(--accent)' : 'var(--bg-input)',

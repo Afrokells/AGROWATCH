@@ -66,10 +66,10 @@ export default function Profile() {
         <p className="page-subtitle">Manage your account settings and regional preferences.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--sp-8)' }}>
+      <div className="grid-profile">
         {/* Profile Card */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-6)' }}>
-          <Card style={{ textAlign: 'center', padding: 'var(--sp-10)' }}>
+          <Card style={{ textAlign: 'center', padding: 'clamp(var(--sp-6), 4vw, var(--sp-10))' }}>
             <div style={{
               width: 100, height: 100, borderRadius: '50%',
               background: 'var(--accent-dim)',

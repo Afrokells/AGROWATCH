@@ -95,7 +95,7 @@ export default function AddFarm() {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-4)' }}>
+          <div className="grid-2" style={{ gap: 'var(--sp-4)' }}>
             <div>
               <Select 
                 label="Region"
@@ -132,7 +132,7 @@ export default function AddFarm() {
             />
           </div>
 
-          <div style={{ marginTop: 'var(--sp-2)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--sp-3)' }}>
+          <div style={{ marginTop: 'var(--sp-2)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--sp-3)', flexWrap: 'wrap' }}>
             <Button type="button" variant="ghost" onClick={() => navigate('/farms')} disabled={isSubmitting}>Cancel</Button>
             <Button type="submit" variant="primary" icon={<Save size={18} />} loading={isSubmitting}>Register Farm</Button>
           </div>

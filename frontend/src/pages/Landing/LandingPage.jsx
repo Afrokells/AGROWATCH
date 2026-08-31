@@ -343,7 +343,7 @@ export default function LandingPage() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: 'var(--sp-8)', lineHeight: 1.7 }}>
               AgroWatch turns crop photos into clear decisions. Upload your plant images to get instant diagnoses, health statistics, and direct access to produce buyers.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-6)' }}>
+            <div className="grid-features-box">
               <div className="glass" style={{ padding: '20px' }}>
                 <h4 style={{ color: 'var(--accent)', marginBottom: 8 }}>Targeted AI Models</h4>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Trained specifically for Tomato, Maize, and Pineapple.</p>
@@ -397,7 +397,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer style={{ borderTop: '1px solid var(--border)', padding: '80px 0', background: 'var(--bg-surface)' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr', gap: 'var(--sp-12)', marginBottom: 'var(--sp-12)' }}>
+          <div className="grid-footer">
             <div>
               <Logo size={40} iconSize={24} style={{ marginBottom: 'var(--sp-6)' }} />
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', marginTop: 'var(--sp-4)', maxWidth: 300 }}>

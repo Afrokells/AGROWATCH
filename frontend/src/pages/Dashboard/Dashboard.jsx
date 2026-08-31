@@ -82,7 +82,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--sp-6)' }}>
+      <div className="grid-stats">
         <StatCard 
           icon={<Tractor size={24} />} 
           label="Registered Farms" 
@@ -113,7 +113,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-6)' }}>
+      <div className="dashboard-grid">
         {/* Recent Scans */}
         <Card style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-6)' }}>
@@ -128,26 +128,26 @@ export default function Dashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
             {stats.recentScans.length > 0 ? stats.recentScans.map(scan => (
               <div key={scan.id} style={{ 
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--sp-3)',
                 padding: 'var(--sp-3)', borderRadius: 'var(--radius-md)',
                 background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', minWidth: 0 }}>
                   <div style={{ 
-                    width: 40, height: 40, borderRadius: 'var(--radius-sm)',
+                    width: 40, height: 40, borderRadius: 'var(--radius-sm)', flexShrink: 0,
                     background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: 'var(--text-secondary)'
                   }}>
                     {CROP_ICONS[scan.crop_type] || <Sprout size={20} />}
                   </div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{scan.farm_name}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.95rem' }} className="truncate">{scan.farm_name}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                       {new Date(scan.scan_date).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', marginLeft: 'auto' }}>
                   {scan.disease_flags > 0 && (
                     <Badge label={`${scan.disease_flags} Issues`} variant="danger" dot />
                   )}
@@ -170,7 +170,7 @@ export default function Dashboard() {
             <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-6)', display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
               Quick Actions
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-4)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 'var(--sp-4)' }}>
               <Link to="/farms/new">
                 <Button variant="ghost" fullWidth style={{ height: 'auto', padding: 'var(--sp-4)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', alignItems: 'center' }}>
                   <Tractor size={24} />

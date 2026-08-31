@@ -135,9 +135,9 @@ export default function DiagnosisReport() {
                 opacity: 0.1, pointerEvents: 'none'
               }} />
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--sp-4)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--sp-3)', marginBottom: 'var(--sp-4)' }}>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', marginBottom: 'var(--sp-1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', flexWrap: 'wrap', marginBottom: 'var(--sp-1)' }}>
                     <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)' }}>{group.condition.label}</h3>
                     <Badge label={group.condition.severity + ' severity'} variant={group.condition.color} />
                   </div>
@@ -147,7 +147,7 @@ export default function DiagnosisReport() {
                     </div>
                   )}
                 </div>
-                <div style={{ textAlign: 'right' }}>
+                <div style={{ textAlign: 'right', marginLeft: 'auto' }}>
                   <div style={{ fontSize: '1.75rem', fontWeight: 800, color: `var(--${group.condition.color})`, lineHeight: 1 }}>
                     {group.count}
                   </div>
@@ -157,7 +157,7 @@ export default function DiagnosisReport() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-6)', marginTop: 'var(--sp-6)' }}>
+              <div className="grid-2" style={{ marginTop: 'var(--sp-6)' }}>
                 <div style={{ background: 'var(--bg-input)', padding: 'var(--sp-4)', borderRadius: 'var(--radius-md)' }}>
                   <h4 style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: 'var(--sp-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Visual Symptoms

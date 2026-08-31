@@ -68,7 +68,7 @@ export default function Scans() {
       {/* Filters Bar */}
       <Card style={{ padding: 'var(--sp-4)' }}>
         <div style={{ display: 'flex', gap: 'var(--sp-4)', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ position: 'relative', flex: 1, minWidth: 250 }}>
+          <div style={{ position: 'relative', flex: 1, minWidth: 'min(100%, 250px)' }}>
             <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input 
               type="text" 
@@ -84,7 +84,7 @@ export default function Scans() {
             />
           </div>
           
-          <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
+          <div className="filter-scroll">
             {['all', 'tomato', 'maize', 'pineapple'].map(crop => (
               <button
                 key={crop}
@@ -99,6 +99,7 @@ export default function Scans() {
                   fontWeight: 600,
                   textTransform: 'capitalize',
                   cursor: 'pointer',
+                  whiteSpace: 'nowrap',
                   transition: 'all 0.2s ease'
                 }}
               >
