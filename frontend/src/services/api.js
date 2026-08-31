@@ -8,6 +8,11 @@ const http = axios.create({ baseURL: BASE_URL });
 
 // Attach token to all requests
 http.interceptors.request.use((cfg) => {
+  if (cfg.url?.startsWith('/auth/')) {
+    delete cfg.headers.Authorization;
+    return cfg;
+  }
+
   const stored = localStorage.getItem('agrowatch_user');
   if (stored) {
     try {
