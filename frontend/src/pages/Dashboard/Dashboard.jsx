@@ -76,7 +76,7 @@ export default function Dashboard() {
         </div>
         <div style={{ display: 'flex', gap: 'var(--sp-3)' }}>
           <Link to="/scan">
-            <Button icon={<ScanLine size={18} />}>New Drone Scan</Button>
+            <Button icon={<ScanLine size={18} />}>Scan</Button>
           </Link>
         </div>
       </div>
