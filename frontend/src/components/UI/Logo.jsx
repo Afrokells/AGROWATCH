@@ -10,6 +10,7 @@ export default function Logo({ size = 36, iconSize = 18, showText = true, classN
         flexShrink: 0
       }}>
         <Leaf size={iconSize} color="#0f1712" strokeWidth={2.5} />
+        <Leaf size={iconSize} color="var(--accent-contrast)" strokeWidth={2.5} />
       </div>
       {showText && (
         <div style={{ lineHeight: 1 }}>

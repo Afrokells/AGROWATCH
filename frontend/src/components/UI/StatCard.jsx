@@ -1,10 +1,18 @@
 import { useEffect, useRef } from 'react';
 import Card from './Card';
 
+/**
+ * StatCard — key metric display.
+ *
+ * Refined: icon sits inline beside the label rather than in a standalone
+ * colored square (which reads as a templated "dashboard card"). A thin
+ * top-border in the accent color anchors each card visually without
+ * relying on a gradient or glow.
+ */
 export default function StatCard({ icon, value, label, sub, color = 'var(--accent)', trend, style = {} }) {
   const valRef = useRef(null);
 
-  // Count-up animation
+  // Count-up animation (preserved — it's earned UX)
   useEffect(() => {
     if (!valRef.current || typeof value !== 'number') return;
     let start = 0;
@@ -23,35 +31,61 @@ export default function StatCard({ icon, value, label, sub, color = 'var(--accen
   }, [value]);
 
   return (
-    <Card style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)', ...style }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Card
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--sp-3)',
+        borderTop: `3px solid ${color}`,
+        paddingTop: 'var(--sp-5)',
+        ...style,
+      }}
+    >
+      {/* Label row: icon inline with label text */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
         <div style={{
-          width: 44, height: 44, borderRadius: 'var(--radius-md)',
-          background: `${color}20`, display: 'flex', alignItems: 'center',
-          justifyContent: 'center', color, flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--sp-2)',
+          color: 'var(--text-muted)',
         }}>
-          {icon}
+          <span style={{ color, display: 'flex', alignItems: 'center' }}>{icon}</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{label}</span>
         </div>
         {trend !== undefined && (
           <span style={{
-            fontSize: '0.75rem', fontWeight: 600,
+            fontSize: '0.72rem',
+            fontWeight: 700,
             color: trend >= 0 ? 'var(--accent)' : 'var(--danger)',
+            background: trend >= 0 ? 'var(--accent-dim)' : 'var(--danger-dim)',
+            padding: '2px 7px',
+            borderRadius: 'var(--radius-sm)',
           }}>
             {trend >= 0 ? '↑' : '↓'} {Math.abs(trend)}%
           </span>
         )}
       </div>
 
+      {/* Value */}
       <div>
         <div ref={valRef} style={{
-          fontSize: '1.875rem', fontWeight: 800,
-          fontFamily: 'Plus Jakarta Sans', color: 'var(--text-primary)',
+          fontSize: '2rem',
+          fontWeight: 800,
+          fontFamily: 'Plus Jakarta Sans',
+          color: 'var(--text-primary)',
           lineHeight: 1,
         }}>
-          {typeof value === 'number' ? (Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2)) : value}
+          {typeof value === 'number'
+            ? (Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2))
+            : value}
         </div>
-        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: 4 }}>{label}</div>
-        {sub && <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>}
+        {sub && (
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 5 }}>{sub}</div>
+        )}
       </div>
     </Card>
   );

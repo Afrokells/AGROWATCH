@@ -105,9 +105,13 @@ export default function ScanResults() {
                 top: `${(det.y / 600) * 100}%`,
                 width: 8, height: 8,
                 borderRadius: '50%',
+                borderRadius: 1,
+                transform: 'translate(-50%, -50%) rotate(45deg)',
                 background: diseaseFlag.severity !== 'none' ? 'var(--danger)' : 'var(--accent)',
                 boxShadow: `0 0 8px ${diseaseFlag.severity !== 'none' ? 'var(--danger)' : 'var(--accent)'}`,
                 opacity: 0.7
+                border: '1px solid rgba(255,255,255,0.7)',
+                opacity: 0.9,
               }} title={`Plant #${det.track_id} - ${diseaseFlag.label}`} />
             )})}
           </div>
@@ -140,6 +144,8 @@ export default function ScanResults() {
               marginTop: 'auto', padding: 'var(--sp-4)', borderRadius: 'var(--radius-md)',
               background: scan.disease_flags > 0 ? 'var(--danger-dim)' : 'var(--accent-dim)',
               border: `1px solid ${scan.disease_flags > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(74,222,128,0.2)'}`
+              border: '1px solid var(--border)',
+              borderLeft: `3px solid ${scan.disease_flags > 0 ? 'var(--danger)' : 'var(--accent)'}`,
             }}>
               <h4 style={{ fontSize: '0.875rem', marginBottom: 'var(--sp-2)', color: scan.disease_flags > 0 ? 'var(--danger)' : 'var(--accent)' }}>
                 System Recommendation
@@ -170,6 +176,9 @@ function MetricCard({ label, value, icon, color = 'accent' }) {
     <Card style={{ padding: 'var(--sp-4)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', marginBottom: 'var(--sp-2)' }}>
         <div style={{ color: `var(--${color})` }}>{icon}</div>
+    <Card style={{ padding: 'var(--sp-4)', borderTop: `3px solid var(--${color})` }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
+        <div style={{ color: `var(--${color})`, display: 'flex', alignItems: 'center' }}>{icon}</div>
         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           {label}
         </div>

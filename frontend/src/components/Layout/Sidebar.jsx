@@ -139,7 +139,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
           <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 'var(--sp-3)', padding: '0 var(--sp-3)' }}>
             Navigation
           </div>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+        <ul style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
             {links.map(({ to, icon, label }) => (
               <li key={to}>
                 <NavLink
@@ -149,20 +149,20 @@ export default function Sidebar({ mobileOpen, onClose }) {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 'var(--sp-3)',
-                    padding: 'var(--sp-3)',
+                    padding: 'var(--sp-3) var(--sp-3) var(--sp-3) calc(var(--sp-3) - 3px)',
                     borderRadius: 'var(--radius-md)',
                     fontSize: '0.9rem',
                     fontWeight: isActive ? 600 : 500,
                     color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
                     background: isActive ? 'var(--accent-dim)' : 'transparent',
-                    border: `1px solid ${isActive ? 'rgba(74,222,128,0.2)' : 'transparent'}`,
+                    borderLeft: isActive ? '3px solid var(--accent)' : '3px solid transparent',
                     transition: 'all 0.18s ease',
                     textDecoration: 'none',
                   })}
                   onMouseEnter={e => {
                     const a = e.currentTarget;
                     if (!a.style.background.includes('accent-dim') && !a.className?.includes('active')) {
-                      a.style.background = 'rgba(255,255,255,0.04)';
+                      a.style.background = 'var(--bg-card-hover)';
                       a.style.color = 'var(--text-primary)';
                     }
                   }}

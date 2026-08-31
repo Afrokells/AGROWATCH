@@ -61,6 +61,7 @@ export default function RegisterPage() {
           <div className="register-card__header">
             <div className="register-card__logo">
               <Leaf size={28} color="#0a1410" strokeWidth={2.5} />
+              <Leaf size={28} color="var(--accent-contrast)" strokeWidth={2.5} />
             </div>
             <h2>Create Your Account</h2>
             <p>Join the future of agricultural intelligence</p>

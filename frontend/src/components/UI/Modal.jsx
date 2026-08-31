@@ -57,8 +57,10 @@ export default function Modal({ open, onClose, title, children, width = 520 }) {
           <div style={{ 
             padding: 'var(--sp-5) var(--sp-6)', 
             borderBottom: '1px solid rgba(74, 222, 128, 0.08)',
+            borderBottom: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             background: 'linear-gradient(to bottom, rgba(255,255,255,0.03), transparent)'
+            background: 'var(--bg-surface)'
           }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{title}</h2>
             <button
@@ -69,6 +71,7 @@ export default function Modal({ open, onClose, title, children, width = 520 }) {
                 background: 'var(--bg-input)',
                 color: 'var(--text-secondary)',
                 border: '1px solid transparent',
+                border: '1px solid var(--border)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
               }}
@@ -76,12 +79,14 @@ export default function Modal({ open, onClose, title, children, width = 520 }) {
                 e.currentTarget.style.background = 'var(--danger-dim)';
                 e.currentTarget.style.color = 'var(--danger)';
                 e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                e.currentTarget.style.borderColor = 'var(--danger)';
                 e.currentTarget.style.transform = 'scale(1.05)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.background = 'var(--bg-input)';
                 e.currentTarget.style.color = 'var(--text-secondary)';
                 e.currentTarget.style.borderColor = 'transparent';
+                e.currentTarget.style.borderColor = 'var(--border)';
                 e.currentTarget.style.transform = 'scale(1)';
               }}
             >

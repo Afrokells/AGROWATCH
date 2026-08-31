@@ -122,14 +122,14 @@ export default function TopBar({ onMenuClick }) {
             <Bell size={17} />
             {unreadCount > 0 && (
               <span style={{
-                position: 'absolute', top: 5, right: 5,
-                minWidth: 16, height: 16, borderRadius: 99,
+                position: 'absolute', top: 4, right: 4,
+                minWidth: 16, height: 16, borderRadius: 3,
                 background: 'var(--amber)',
-                boxShadow: '0 0 6px var(--amber)',
-                fontSize: '0.625rem', fontWeight: 800,
+                fontSize: '0.6rem', fontWeight: 800,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#000', padding: '0 3px',
+                color: 'var(--bg-base)', padding: '0 3px',
                 lineHeight: 1,
+                letterSpacing: '0.02em',
               }}>
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
