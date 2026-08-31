@@ -14,6 +14,7 @@ class User(AbstractUser):
     user_role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='farmer')
     region = models.CharField(max_length=100, blank=True)
     district = models.CharField(max_length=100, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['username', 'full_name']

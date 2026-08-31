@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from '../UI/ThemeToggle';
 import Logo from '../UI/Logo';
-import { messagingAPI } from '../../services/api';
+import { API_ORIGIN, messagingAPI } from '../../services/api';
 
 const getInitials = (name) => {
   if (!name) return '?';
@@ -23,6 +23,12 @@ const PAGE_TITLES = {
   '/market':    'Market Listings',
   '/messages':  'Messages',
   '/profile':   'Profile',
+};
+
+const getMediaUrl = (url) => {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${API_ORIGIN}${url.startsWith('/') ? url : `/${url}`}`;
 };
 
 export default function TopBar({ onMenuClick }) {
@@ -145,8 +151,13 @@ export default function TopBar({ onMenuClick }) {
             background: 'var(--accent-dim)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 700, fontSize: '0.75rem', color: 'var(--accent)',
+            overflow: 'hidden',
           }}>
-            {getInitials(user?.full_name)}
+            {user?.profile_picture ? (
+              <img src={getMediaUrl(user.profile_picture)} alt={user?.full_name || 'Profile'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              getInitials(user?.full_name)
+            )}
           </div>
           <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
             {user?.full_name?.split(' ')[0]}

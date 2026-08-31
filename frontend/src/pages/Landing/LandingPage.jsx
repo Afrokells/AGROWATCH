@@ -38,7 +38,7 @@ export default function LandingPage() {
       advisory: 'Apply recommended copper fungicide and prune affected lower leaves to prevent spread.'
     },
     maize: {
-      name: 'Maize Field Scan',
+      name: 'Maize Crop Scan',
       condition: 'Healthy Field Vigor',
       status: 'success',
       confidence: '99% Match',
@@ -48,7 +48,7 @@ export default function LandingPage() {
       advisory: 'Crop health is optimal. Continue regular watering and weed control schedule.'
     },
     pineapple: {
-      name: 'Pineapple Block Scan',
+      name: 'Pineapple Crop Scan',
       condition: 'Mealybug Symptoms Spotted',
       status: 'warning',
       confidence: '94% Match',

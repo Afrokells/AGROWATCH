@@ -55,7 +55,10 @@ export const authAPI = {
     return data; // { token, user }
   },
   updateProfile: async (userId, payload) => {
-    const { data } = await http.patch(`/users/${userId}/`, payload);
+    const isFormData = payload instanceof FormData;
+    const { data } = await http.patch(`/users/${userId}/`, payload, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return data;
   },
 };

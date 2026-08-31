@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Logo from '../UI/Logo';
+import { API_ORIGIN } from '../../services/api';
 
 const getInitials = (name) => {
   if (!name) return '?';
@@ -17,7 +18,7 @@ const getInitials = (name) => {
 const FARMER_LINKS = [
   { to: '/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
   { to: '/farms',     icon: <Tractor size={18} />,         label: 'My Farms'  },
-  { to: '/scans',     icon: <ScanLine size={18} />,        label: 'Drone Scans' },
+  { to: '/scans',     icon: <ScanLine size={18} />,        label: 'Scans' },
   { to: '/market',    icon: <ShoppingBasket size={18} />,  label: 'My Products' },
   { to: '/messages',  icon: <MessageCircle size={18} />,   label: 'Messages'  },
   { to: '/profile',   icon: <User size={18} />,            label: 'Profile'   },
@@ -36,6 +37,12 @@ const ADMIN_LINKS = [
   { to: '/market',    icon: <ShoppingBasket size={18} />,  label: 'All Listings' },
   { to: '/profile',   icon: <User size={18} />,            label: 'Profile'      },
 ];
+
+const getMediaUrl = (url) => {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${API_ORIGIN}${url.startsWith('/') ? url : `/${url}`}`;
+};
 
 export default function Sidebar({ mobileOpen, onClose }) {
   const { user, logout, isFarmer, isAdmin } = useAuth();
@@ -109,8 +116,13 @@ export default function Sidebar({ mobileOpen, onClose }) {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 700, fontSize: '0.875rem', color: 'var(--accent)',
             flexShrink: 0,
+            overflow: 'hidden',
           }}>
-            {getInitials(user?.full_name)}
+            {user?.profile_picture ? (
+              <img src={getMediaUrl(user.profile_picture)} alt={user?.full_name || 'Profile'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              getInitials(user?.full_name)
+            )}
           </div>
           <div style={{ overflow: 'hidden' }}>
             <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
