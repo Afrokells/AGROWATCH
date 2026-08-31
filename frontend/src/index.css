@@ -15,12 +15,10 @@
   --accent:        #315c3b;
   --accent-dim:    #e3ecde;
   --accent-hover:  #24472d;
-  --accent-contrast:#ffffff;
   --amber:         #9a6b25;
   --amber-dim:     #f2e7d3;
   --danger:        #b6473d;
   --danger-dim:    #f4dedb;
-  --danger-contrast:#ffffff;
   --info:          #316273;
   --info-dim:      #dcebef;
 
@@ -69,12 +67,10 @@
   --accent:        #9fbc8f;
   --accent-dim:    #273823;
   --accent-hover:  #bed0b3;
-  --accent-contrast:#0d140d;
   --amber:         #d0a85d;
   --amber-dim:     #3d321f;
   --danger:        #e28a7f;
   --danger-dim:    #442824;
-  --danger-contrast:#180907;
   --info:          #91bfca;
   --info-dim:      #233941;
 
@@ -786,7 +782,6 @@ select.form-input option {
 .register-role-toggle button.is-active {
   background: var(--accent);
   color: #0a1410;
-  color: var(--accent-contrast);
   box-shadow: var(--shadow-sm);
 }
 
