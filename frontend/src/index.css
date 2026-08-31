@@ -629,3 +629,187 @@ select.form-input option {
 .mini-select .form-label {
   display: none;
 }
+
+/* Register Page */
+.register-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(var(--sp-4), 4vw, var(--sp-8));
+  position: relative;
+  overflow-x: hidden;
+  background: var(--bg-base);
+}
+
+.register-page__bg,
+.register-page__overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.register-page__bg {
+  background-size: cover;
+  background-position: center;
+  opacity: 0.58;
+  z-index: 0;
+}
+
+.register-page__overlay {
+  background:
+    linear-gradient(180deg, var(--bg-base) 0%, transparent 34%, var(--bg-base) 100%),
+    rgba(10, 20, 16, 0.14);
+  z-index: 1;
+}
+
+.register-page__content {
+  width: min(100%, 620px);
+  position: relative;
+  z-index: 2;
+}
+
+.register-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-5);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.register-card {
+  padding: clamp(var(--sp-5), 4vw, var(--sp-10)) !important;
+  background: var(--bg-surface);
+  opacity: 0.96;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.register-card__header {
+  text-align: center;
+  margin-bottom: var(--sp-8);
+}
+
+.register-card__logo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--sp-4);
+}
+
+.register-card__header h2 {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+  margin-bottom: var(--sp-1);
+}
+
+.register-card__header p,
+.register-card__footer {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.register-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-5);
+}
+
+.register-form__full {
+  grid-column: 1 / -1;
+}
+
+.register-role-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.register-role-toggle button {
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: calc(var(--radius-md) - 2px);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  transition: background var(--ease), color var(--ease), box-shadow var(--ease);
+}
+
+.register-role-toggle button.is-active {
+  background: var(--accent);
+  color: #0a1410;
+  box-shadow: var(--shadow-sm);
+}
+
+.register-input-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.register-input-wrap svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.register-input-wrap .form-input {
+  min-height: 46px;
+  padding-left: 44px;
+}
+
+.register-card__footer {
+  margin-top: var(--sp-8);
+  text-align: center;
+}
+
+.register-card__footer a {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@media (max-width: 680px) {
+  .register-page {
+    align-items: flex-start;
+    padding: var(--sp-4);
+  }
+
+  .register-page__content {
+    width: 100%;
+  }
+
+  .register-form {
+    grid-template-columns: 1fr;
+    gap: var(--sp-4);
+  }
+
+  .register-card__header {
+    margin-bottom: var(--sp-6);
+  }
+}
+
+@media (max-width: 420px) {
+  .register-page {
+    padding: var(--sp-3);
+  }
+
+  .register-page__back {
+    margin-bottom: var(--sp-4);
+  }
+
+  .register-role-toggle {
+    grid-template-columns: 1fr;
+  }
+}

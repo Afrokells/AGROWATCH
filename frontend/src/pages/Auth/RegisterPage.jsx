@@ -45,118 +45,128 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      padding: 'var(--sp-6)',
-      position: 'relative',
-      overflow: 'hidden',
-      background: 'var(--bg-base)'
-    }}>
-      {/* Background Image with Theme-aware Overlay */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: `url(${authBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        zIndex: 0,
-        opacity: 0.6
-      }} />
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'linear-gradient(to top, var(--bg-base), transparent 40%, var(--bg-base))',
-        opacity: 0.9,
-        zIndex: 1
-      }} />
+    <main className="register-page">
+      <div
+        className="register-page__bg"
+        style={{ backgroundImage: `url(${authBg})` }}
+      />
+      <div className="register-page__overlay" />
 
-      <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 540 }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', marginBottom: 'var(--sp-6)', fontSize: '0.875rem', fontWeight: 500 }}>
+      <div className="register-page__content">
+        <Link to="/" className="register-page__back">
           <ChevronLeft size={16} /> Back to Home
         </Link>
 
-        <Card style={{ padding: 'var(--sp-10)', background: 'var(--bg-surface)', opacity: 0.95, backdropFilter: 'blur(20px)' }}>
-          <div style={{ textAlign: 'center', marginBottom: 'var(--sp-8)' }}>
-            <div style={{ width: 48, height: 48, borderRadius: 'var(--radius-md)', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto var(--sp-4)' }}>
+        <Card className="register-card" hover={false}>
+          <div className="register-card__header">
+            <div className="register-card__logo">
               <Leaf size={28} color="#0a1410" strokeWidth={2.5} />
             </div>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: 4, color: 'var(--text-primary)' }}>Create Your Account</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Join the future of agricultural intelligence</p>
+            <h2>Create Your Account</h2>
+            <p>Join the future of agricultural intelligence</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="grid-2" style={{ gap: 'var(--sp-5)' }}>
-            <div style={{ gridColumn: 'span 2', display: 'flex', background: 'var(--bg-input)', borderRadius: 'var(--radius-md)', padding: 4, border: '1px solid var(--border)' }}>
-              <button 
+          <form onSubmit={handleSubmit} className="register-form">
+            <div className="register-role-toggle register-form__full">
+              <button
                 type="button"
-                onClick={() => setFormData(p => ({...p, role: 'farmer'}))}
-                style={{ flex: 1, padding: '8px', borderRadius: 'calc(var(--radius-md) - 2px)', background: formData.role === 'farmer' ? 'var(--accent)' : 'transparent', color: formData.role === 'farmer' ? '#0a1410' : 'var(--text-secondary)', fontWeight: 600, fontSize: '0.8125rem', transition: 'all 0.2s ease' }}
+                onClick={() => setFormData(prev => ({ ...prev, role: 'farmer' }))}
+                className={formData.role === 'farmer' ? 'is-active' : ''}
               >
                 I'm a Farmer
               </button>
-              <button 
+              <button
                 type="button"
-                onClick={() => setFormData(p => ({...p, role: 'buyer'}))}
-                style={{ flex: 1, padding: '8px', borderRadius: 'calc(var(--radius-md) - 2px)', background: formData.role === 'buyer' ? 'var(--accent)' : 'transparent', color: formData.role === 'buyer' ? '#0a1410' : 'var(--text-secondary)', fontWeight: 600, fontSize: '0.8125rem', transition: 'all 0.2s ease' }}
+                onClick={() => setFormData(prev => ({ ...prev, role: 'buyer' }))}
+                className={formData.role === 'buyer' ? 'is-active' : ''}
               >
                 I'm a Buyer
               </button>
             </div>
 
-            <div className="form-group" style={{ gridColumn: 'span 2' }}>
-              <label className="form-label" style={{ color: 'var(--text-primary)' }}>Full Name</label>
-              <div style={{ position: 'relative' }}>
-                <User size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input name="full_name" className="form-input" placeholder="e.g. Kwame Asante" style={{ paddingLeft: 44 }} value={formData.full_name} onChange={handleChange} required />
+            <div className="form-group register-form__full">
+              <label className="form-label" htmlFor="register-full-name">Full Name</label>
+              <div className="register-input-wrap">
+                <User size={18} />
+                <input
+                  id="register-full-name"
+                  name="full_name"
+                  className="form-input"
+                  placeholder="e.g. Kwame Asante"
+                  value={formData.full_name}
+                  onChange={handleChange}
+                  autoComplete="name"
+                  required
+                />
               </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label" style={{ color: 'var(--text-primary)' }}>Phone Number</label>
-              <div style={{ position: 'relative' }}>
-                <Phone size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input name="phone_number" className="form-input" placeholder="+233..." style={{ paddingLeft: 44 }} value={formData.phone_number} onChange={handleChange} required />
+              <label className="form-label" htmlFor="register-phone">Phone Number</label>
+              <div className="register-input-wrap">
+                <Phone size={18} />
+                <input
+                  id="register-phone"
+                  name="phone_number"
+                  type="tel"
+                  className="form-input"
+                  placeholder="+233..."
+                  value={formData.phone_number}
+                  onChange={handleChange}
+                  autoComplete="tel"
+                  required
+                />
               </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label" style={{ color: 'var(--text-primary)' }}>Password</label>
-              <div style={{ position: 'relative' }}>
-                <Lock size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input name="password" type="password" className="form-input" placeholder="••••••••" style={{ paddingLeft: 44 }} value={formData.password} onChange={handleChange} required />
+              <label className="form-label" htmlFor="register-password">Password</label>
+              <div className="register-input-wrap">
+                <Lock size={18} />
+                <input
+                  id="register-password"
+                  name="password"
+                  type="password"
+                  className="form-input"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                  required
+                />
               </div>
             </div>
 
-            <Select 
+            <Select
               label="Region"
               icon={MapPin}
-              options={REGIONS.map(r => ({ value: r, label: r }))}
+              options={REGIONS.map(region => ({ value: region, label: region }))}
               value={formData.region}
-              onChange={(val) => setFormData(p => ({...p, region: val, district: ''}))}
+              onChange={(val) => setFormData(prev => ({ ...prev, region: val, district: '' }))}
               placeholder="Select region"
             />
 
             <Select
               label="District"
-              options={(REGIONS_DISTRICTS[formData.region] || []).map(d => ({ value: d, label: d }))}
+              options={(REGIONS_DISTRICTS[formData.region] || []).map(district => ({ value: district, label: district }))}
               value={formData.district}
-              onChange={(val) => setFormData(p => ({...p, district: val}))}
+              onChange={(val) => setFormData(prev => ({ ...prev, district: val }))}
               placeholder={formData.region ? 'Select district' : 'Select a region first'}
               disabled={!formData.region}
             />
 
-            <div style={{ gridColumn: 'span 2', marginTop: 'var(--sp-2)' }}>
+            <div className="register-form__full">
               <Button type="submit" fullWidth size="lg" loading={loading}>
                 Create Account
               </Button>
             </div>
           </form>
 
-          <div style={{ marginTop: 'var(--sp-8)', textAlign: 'center', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 600 }}>Sign In</Link>
+          <div className="register-card__footer">
+            Already have an account? <Link to="/login">Sign In</Link>
           </div>
         </Card>
       </div>
-    </div>
+    </main>
   );
 }
