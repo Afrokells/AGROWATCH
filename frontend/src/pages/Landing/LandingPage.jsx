@@ -75,7 +75,9 @@ export default function LandingPage() {
         padding: 'var(--sp-4) 0'
       }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Logo size={40} iconSize={24} />
+          <Link to="/" aria-label="Go to AgroWatch home" style={{ display: 'inline-flex' }}>
+            <Logo size={40} iconSize={24} />
+          </Link>
           
           <div className="desktop-only" style={{ display: 'flex', gap: 'var(--sp-8)', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: 'var(--sp-6)', alignItems: 'center' }}>
@@ -399,7 +401,9 @@ export default function LandingPage() {
         <div className="container">
           <div className="grid-footer">
             <div>
-              <Logo size={40} iconSize={24} style={{ marginBottom: 'var(--sp-6)' }} />
+              <Link to="/" aria-label="Go to AgroWatch home" style={{ display: 'inline-flex', marginBottom: 'var(--sp-6)' }}>
+                <Logo size={40} iconSize={24} />
+              </Link>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', marginTop: 'var(--sp-4)', maxWidth: 300 }}>
                 Revolutionizing agricultural monitoring through computer vision and expert systems.
               </p>
@@ -512,4 +516,3 @@ function FeatureItem({ icon, title, desc }) {
     </div>
   );
 }
-
