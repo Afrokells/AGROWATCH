@@ -5,7 +5,8 @@ import { useToast } from '../../context/ToastContext';
 import Button from '../../components/UI/Button';
 import Card from '../../components/UI/Card';
 import Select from '../../components/UI/Select';
-import { Leaf, User, Phone, Lock, MapPin, ChevronLeft } from 'lucide-react';
+import Logo from '../../components/UI/Logo';
+import { User, Phone, Lock, MapPin, ChevronLeft } from 'lucide-react';
 import { REGIONS, REGIONS_DISTRICTS } from '../../data/constants';
 import authBg from '../../assets/auth_bg.png';
 
@@ -59,9 +60,7 @@ export default function RegisterPage() {
 
         <Card className="register-card" hover={false}>
           <div className="register-card__header">
-            <div className="register-card__logo">
-              <Leaf size={28} color="#0a1410" strokeWidth={2.5} />
-            </div>
+            <Logo size={48} showText={false} style={{ margin: '0 auto var(--sp-4)', display: 'flex', justifyContent: 'center' }} />
             <h2>Create Your Account</h2>
             <p>Join the future of agricultural intelligence</p>
           </div>

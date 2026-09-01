@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/UI/Button';
 import Card from '../../components/UI/Card';
-import { Leaf, Phone, Lock, ChevronLeft } from 'lucide-react';
+import Logo from '../../components/UI/Logo';
+import { Phone, Lock, ChevronLeft } from 'lucide-react';
 import authBg from '../../assets/auth_bg.png';
 
 export default function LoginPage() {
@@ -66,9 +67,7 @@ export default function LoginPage() {
         
         <Card style={{ padding: 'var(--sp-10)', background: 'var(--bg-surface)', opacity: 0.95, backdropFilter: 'blur(20px)' }}>
           <div style={{ textAlign: 'center', marginBottom: 'var(--sp-8)' }}>
-            <div style={{ width: 48, height: 48, borderRadius: 'var(--radius-md)', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto var(--sp-4)' }}>
-              <Leaf size={28} color="#0a1410" strokeWidth={2.5} />
-            </div>
+            <Logo size={48} showText={false} style={{ margin: '0 auto var(--sp-4)', display: 'flex', justifyContent: 'center' }} />
             <h2 style={{ fontSize: '1.5rem', marginBottom: 4, color: 'var(--text-primary)' }}>Welcome Back</h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Securely login to your account</p>
           </div>

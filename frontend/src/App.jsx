@@ -25,7 +25,7 @@ function ProtectedRoute({ children }) {
   
   if (loading) return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--sp-4)', background: 'var(--bg-base)' }}>
-      <Logo size={48} iconSize={24} className="animate-pulse" />
+      <Logo size={48} showSubtitle={false} />
       <div className="skeleton" style={{ width: 120, height: 4, borderRadius: 2 }}></div>
     </div>
   );

@@ -4,29 +4,31 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="mask-icon" href="/favicon.svg" color="#22c55e" />
+  <link rel="mask-icon" href="/favicon.svg" color="#315c3b" />
   <link rel="apple-touch-icon" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgroWatch - Intelligent Farming Companion</title>
+  <title>AgroWatch — Smart Crop Monitoring &amp; Market Linkage</title>
 </head>
 
 <body>
   <div id="root">
     <!-- Initial Loading Splash -->
-    <div style="height: 100vh; display: flex; align-items: center; justify-content: center; background: #f9fbf9;">
-      <div style="width: 64px; height: 64px; border-radius: 12px; background: #22c55e; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0f1712" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
-          <path d="M2 21c0-3 1.85-5.36 5.08-6C10.7 14.4 12.5 12 14 10l7 10"/>
-        </svg>
+    <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f6f7f2; gap: 16px;">
+      <svg width="56" height="56" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="#315c3b" />
+        <path d="M 8 13 V 9.5 A 1.5 1.5 0 0 1 9.5 8 H 13" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.45" />
+        <path d="M 23 8 H 26.5 A 1.5 1.5 0 0 1 28 9.5 V 13" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.45" />
+        <path d="M 28 23 V 26.5 A 1.5 1.5 0 0 1 26.5 28 H 23" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.45" />
+        <path d="M 13 28 H 9.5 A 1.5 1.5 0 0 1 8 26.5 V 23" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.45" />
+        <path d="M 18 26.5 V 13" stroke="#ffffff" stroke-width="1.75" stroke-linecap="round" />
+        <path d="M 18 21.5 C 14.2 21.5 10.5 18.8 11.2 13.8 C 15.5 14 17.5 17.5 18 20.2" fill="#ffffff" fill-opacity="0.9" />
+        <path d="M 18 17.5 C 21.8 17.5 25.5 14.8 24.8 9.8 C 20.5 10 18.5 13.5 18 16.2" fill="#ffffff" fill-opacity="0.95" />
+        <circle cx="18" cy="9.2" r="1.85" fill="#d0a85d" />
+        <circle cx="18" cy="9.2" r="0.75" fill="#ffffff" />
+      </svg>
+      <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.15rem; font-weight: 800; color: #182119; letter-spacing: -0.02em;">
+        Agro<span style="color: #315c3b; font-weight: 600;">Watch</span><span style="display:inline-block; width:4px; height:4px; border-radius:50%; background:#d0a85d; margin-left:2px;"></span>
       </div>
-      <style>
-        @keyframes pulse {
-          0% { opacity: 0.4; transform: scale(0.95); }
-          50% { opacity: 1; transform: scale(1.05); }
-          100% { opacity: 0.4; transform: scale(0.95); }
-        }
-      </style>
     </div>
   </div>
   <script type="module" src="/src/main.jsx"></script>
