@@ -467,28 +467,21 @@ function Step({ number, icon, title, desc }) {
 
 function CropCard({ name, desc, benefits, icon, imgSrc }) {
   return (
-    <div className="glass-strong" style={{ overflow: 'hidden', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', border: '1px solid var(--border)' }}>
-      <div style={{ position: 'relative', height: 210, overflow: 'hidden' }}>
-        <img src={imgSrc} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    <div className="crop-card">
+      <div className="crop-card__image-wrap">
+        <img src={imgSrc} alt={name} className="crop-card__image" />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-surface) 0%, transparent 35%)' }} />
-        <div style={{ 
-          position: 'absolute', top: 12, right: 12, 
-          background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)', 
-          padding: '6px 12px', borderRadius: 'var(--radius-md)', 
-          display: 'flex', alignItems: 'center', gap: 6, 
-          color: '#fff', fontSize: '0.8rem', fontWeight: 700,
-          border: '1px solid rgba(255,255,255,0.15)'
-        }}>
+        <div className="crop-card__badge">
           {icon} {name}
         </div>
       </div>
-      <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)', flex: 1 }}>
-        <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{name}</h3>
+      <div className="crop-card__body">
+        <h3 className="crop-card__title">{name}</h3>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6 }}>{desc}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', marginTop: 'auto', paddingTop: 'var(--sp-3)' }}>
           {benefits.map((b, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: 'var(--accent)' }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor' }} />
+            <div key={i} className="crop-card__benefit">
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor', flexShrink: 0 }} />
               {b}
             </div>
           ))}
