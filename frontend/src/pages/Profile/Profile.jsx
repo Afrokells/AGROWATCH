@@ -267,8 +267,6 @@ function Avatar({ imageUrl, name, size }) {
       color: 'var(--accent)',
       margin: size > 80 ? '0 auto' : 0,
       boxShadow: 'var(--shadow-glow)',
-      border: '2px solid var(--border)',
-      boxShadow: 'var(--shadow-sm)',
       overflow: 'hidden',
       position: 'relative'
     }}>

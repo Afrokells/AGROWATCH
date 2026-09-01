@@ -104,13 +104,11 @@ export default function LandingPage() {
       <section style={{ 
         position: 'relative', 
         padding: 'clamp(120px, 15vh, 180px) 0 clamp(60px, 10vh, 120px)', 
-        background: 'var(--bg-base)',
-        backgroundImage: 'radial-gradient(var(--border) 1px, transparent 1px)',
-        backgroundSize: '28px 28px',
+        background: 'radial-gradient(circle at top right, var(--accent-dim), transparent 50%), radial-gradient(circle at bottom left, var(--amber-dim), transparent 50%)'
       }}>
         <div className="container grid-hero">
           <div className="animate-fade-in" style={{ textAlign: 'left' }}>
-            <span className="section-eyebrow">Smart Agricultural System</span>
+            <Badge label="SMART AGRICULTURAL SYSTEM" variant="accent" style={{ marginBottom: 'var(--sp-6)' }} />
             <h1 style={{ 
               fontSize: 'clamp(2rem, 4vw, 3.5rem)', 
               lineHeight: 1.15,
@@ -119,7 +117,7 @@ export default function LandingPage() {
               fontFamily: 'Plus Jakarta Sans',
               color: 'var(--text-primary)'
             }}>
-              An Integrated <span className="gradient-text">Multi-Crop Monitoring</span>, Pest &amp; Disease Detection, and Market Linkage System
+              An Integrated <span className="gradient-text">Multi-Crop Monitoring</span>, Pest & Disease Detection, and Market Linkage System
             </h1>
             <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', marginBottom: 'var(--sp-10)', lineHeight: 1.6, maxWidth: 580 }}>
               An AI-powered platform designed to detect plant diseases early, provide treatment recommendations, and connect farmers directly with buyers for Tomato, Maize, and Pineapple.
@@ -138,7 +136,12 @@ export default function LandingPage() {
           </div>
 
           {/* Interactive Scan Result Card Preview */}
-          <div className="animate-card-in" style={{ position: 'relative' }}>
+          <div className="animate-float" style={{ position: 'relative' }}>
+            <div style={{ 
+              position: 'absolute', inset: '-25px', 
+              background: 'linear-gradient(135deg, var(--accent) 0%, transparent 60%)', 
+              borderRadius: 'var(--radius-xl)', opacity: 0.15, zIndex: 0 
+            }} />
             
             <div className="glass-strong" style={{ 
               position: 'relative', 
@@ -146,7 +149,7 @@ export default function LandingPage() {
               border: '1px solid var(--border)', 
               boxShadow: 'var(--shadow-lg)',
               padding: 'var(--sp-6)',
-              background: 'var(--bg-surface)',
+              background: 'linear-gradient(145deg, var(--bg-surface), var(--bg-card))',
               display: 'flex',
               flexDirection: 'column',
               gap: 'var(--sp-5)'
@@ -209,11 +212,11 @@ export default function LandingPage() {
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>PLANTS</div>
                 </div>
                 <div style={{ background: 'var(--bg-base)', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent)' }}>{currentScan.healthyCount}</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#10b981' }}>{currentScan.healthyCount}</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>HEALTHY</div>
                 </div>
                 <div style={{ background: 'var(--bg-base)', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: currentScan.affectedCount > 0 ? 'var(--danger)' : 'var(--accent)' }}>{currentScan.affectedCount}</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: currentScan.affectedCount > 0 ? '#ef4444' : '#10b981' }}>{currentScan.affectedCount}</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>AFFECTED</div>
                 </div>
               </div>
@@ -221,13 +224,13 @@ export default function LandingPage() {
               {/* Condition Result Banner */}
               <div style={{ 
                 padding: '12px 14px', borderRadius: 'var(--radius-md)', 
-                background: currentScan.status === 'warning' ? 'var(--danger-dim)' : 'var(--accent-dim)',
-                border: currentScan.status === 'warning' ? '1px solid var(--danger)' : '1px solid var(--accent)',
+                background: currentScan.status === 'warning' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(16, 185, 129, 0.08)',
+                border: currentScan.status === 'warning' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <ShieldCheck size={18} color={currentScan.status === 'warning' ? 'var(--danger)' : 'var(--accent)'} />
-                  <span style={{ fontSize: '0.88rem', fontWeight: 700, color: currentScan.status === 'warning' ? 'var(--danger)' : 'var(--accent)' }}>
+                  <ShieldCheck size={18} color={currentScan.status === 'warning' ? '#ef4444' : '#10b981'} />
+                  <span style={{ fontSize: '0.88rem', fontWeight: 700, color: currentScan.status === 'warning' ? '#ef4444' : '#10b981' }}>
                     {currentScan.condition}
                   </span>
                 </div>
@@ -254,20 +257,19 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Status Tag — no pulsing animation */}
+            {/* Status Floating Badge */}
             <div className="glass" style={{ 
               position: 'absolute', top: -14, right: 10, 
-              padding: '6px 12px', 
-              display: 'flex', alignItems: 'center',
+              padding: '8px 14px', 
+              display: 'flex', alignItems: 'center', gap: 8, 
               zIndex: 10,
-              border: '1px solid var(--border)',
-              background: 'var(--bg-surface)',
-              borderRadius: 'var(--radius-md)'
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              background: 'rgba(16, 185, 129, 0.08)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: 'var(--radius-lg)'
             }}>
-              <span className="status-indicator status-indicator--live">
-                <span className="status-indicator__dot" />
-                Crop Scan Demo
-              </span>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', animation: 'pulse 1.5s infinite' }} />
+              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981', letterSpacing: '0.05em' }}>CROP SCAN DEMO • AUTO SLIDE</div>
             </div>
           </div>
         </div>
@@ -277,7 +279,7 @@ export default function LandingPage() {
       <section id="crops" style={{ padding: '100px 0', background: 'var(--bg-base)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-            <span className="section-eyebrow" style={{ justifyContent: 'center' }}>Precision Targeting</span>
+            <Badge label="PRECISION TARGETING" variant="accent" style={{ marginBottom: 16 }} />
             <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Supported Value Chains</h2>
             <p style={{ color: 'var(--text-secondary)', maxWidth: 600, margin: '0 auto', fontSize: '1.1rem' }}>
               Our AI models are specifically trained for the unique agricultural landscape of Ghana.
@@ -336,7 +338,7 @@ export default function LandingPage() {
           </div>
           
           <div>
-            <span className="section-eyebrow">Features</span>
+            <Badge label="FEATURES" variant="info" style={{ marginBottom: 16 }} />
             <h2 style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--sp-6)' }}>
               Simple & <span style={{ color: 'var(--accent)' }}>Actionable</span> Crop Insights
             </h2>
@@ -344,11 +346,11 @@ export default function LandingPage() {
               AgroWatch turns crop photos into clear decisions. Upload your plant images to get instant diagnoses, health statistics, and direct access to produce buyers.
             </p>
             <div className="grid-features-box">
-              <div className="glass card-rule-accent" style={{ padding: '20px' }}>
+              <div className="glass" style={{ padding: '20px' }}>
                 <h4 style={{ color: 'var(--accent)', marginBottom: 8 }}>Targeted AI Models</h4>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Trained specifically for Tomato, Maize, and Pineapple.</p>
               </div>
-              <div className="glass card-rule-info" style={{ padding: '20px' }}>
+              <div className="glass" style={{ padding: '20px' }}>
                 <h4 style={{ color: 'var(--info)', marginBottom: 8 }}>Direct Market Linkage</h4>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Connect healthy harvests directly with buyers.</p>
               </div>
@@ -361,7 +363,7 @@ export default function LandingPage() {
       <section id="how-it-works" style={{ padding: '120px 0', background: 'var(--bg-surface)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <span className="section-eyebrow" style={{ justifyContent: 'center' }}>How it Works</span>
+            <Badge label="HOW IT WORKS" variant="info" style={{ marginBottom: 16 }} />
             <h2 style={{ fontSize: '2.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>Four Simple Steps</h2>
             <p style={{ color: 'var(--text-secondary)', maxWidth: 600, margin: '0 auto', fontSize: '1.125rem' }}>From photo upload to disease treatment and selling your harvest.</p>
           </div>
@@ -381,8 +383,8 @@ export default function LandingPage() {
           padding: 'clamp(40px, 8vw, 100px) var(--container-px)', 
           textAlign: 'center', 
           borderRadius: 'var(--radius-xl)', 
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-hover)'
+          background: 'linear-gradient(135deg, var(--bg-card), var(--bg-surface))',
+          border: '1px solid var(--border)'
         }}>
           <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, marginBottom: 'var(--sp-6)', color: 'var(--text-primary)' }}>Ready to scale your farm?</h2>
           <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', marginBottom: 'var(--sp-10)', maxWidth: 640, margin: '0 auto var(--sp-10)' }}>

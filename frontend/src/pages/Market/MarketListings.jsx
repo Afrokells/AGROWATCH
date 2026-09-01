@@ -220,14 +220,11 @@ function FilterButton({ children, active, onClick }) {
       onClick={onClick}
       style={{
         padding: '8px 16px',
-        padding: '7px 16px',
         borderRadius: 'var(--radius-full)',
         background: active ? 'var(--accent)' : 'var(--bg-input)',
         color: active ? '#0a1410' : 'var(--text-secondary)',
-        color: active ? '#ffffff' : 'var(--text-secondary)',
         border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
         fontSize: '0.875rem',
-        fontSize: '0.8125rem',
         fontWeight: 600,
         cursor: 'pointer',
         whiteSpace: 'nowrap',

@@ -91,11 +91,9 @@ export default function Scans() {
                 onClick={() => setCropFilter(crop)}
                 style={{
                   padding: '8px 16px',
-                  padding: '7px 16px',
                   borderRadius: 'var(--radius-full)',
                   background: cropFilter === crop ? 'var(--accent)' : 'var(--bg-input)',
                   color: cropFilter === crop ? '#0a1410' : 'var(--text-secondary)',
-                  color: cropFilter === crop ? '#ffffff' : 'var(--text-secondary)',
                   border: `1px solid ${cropFilter === crop ? 'var(--accent)' : 'var(--border)'}`,
                   fontSize: '0.8125rem',
                   fontWeight: 600,
@@ -131,12 +129,6 @@ export default function Scans() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
           {filteredScans.map(scan => (
             <Card key={scan.id} style={{ padding: 'var(--sp-4) var(--sp-5)' }}>
-            <Card 
-              key={scan.id} 
-              variant={scan.disease_flags > 0 ? "rule" : "default"} 
-              ruleColor="danger"
-              style={{ padding: 'var(--sp-4) var(--sp-5)' }}
-            >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--sp-4)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-4)' }}>
                   <div style={{ 

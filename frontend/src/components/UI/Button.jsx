@@ -1,9 +1,7 @@
 
 const VARIANTS = {
   primary:   { bg: 'var(--accent)', color: '#0a1410', border: 'transparent' },
-  primary:   { bg: 'var(--accent)', color: 'var(--accent-contrast)', border: 'transparent' },
   secondary: { bg: 'var(--accent-dim)', color: 'var(--accent)', border: 'var(--accent)' },
-  outline:   { bg: 'transparent', color: 'var(--accent)', border: 'var(--accent)' },
   amber:     { bg: 'var(--amber-dim)', color: 'var(--amber)', border: 'var(--amber)' },
   danger:    { bg: 'var(--danger-dim)', color: 'var(--danger)', border: 'var(--danger)' },
   ghost:     { bg: 'transparent', color: 'var(--text-secondary)', border: 'var(--border)' },
