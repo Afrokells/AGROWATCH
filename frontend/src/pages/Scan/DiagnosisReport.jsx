@@ -124,6 +124,7 @@ export default function DiagnosisReport() {
           {diagnosisGroups.map((group, idx) => (
             <Card key={idx} style={{ 
               borderLeft: `4px solid var(--${group.condition.color})`,
+            <Card key={idx} variant="rule" ruleColor={group.condition.color || 'accent'} style={{ 
               padding: 'var(--sp-6)',
               position: 'relative',
               overflow: 'hidden'
@@ -159,6 +160,7 @@ export default function DiagnosisReport() {
 
               <div className="grid-2" style={{ marginTop: 'var(--sp-6)' }}>
                 <div style={{ background: 'var(--bg-input)', padding: 'var(--sp-4)', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ background: 'var(--bg-input)', padding: 'var(--sp-4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
                   <h4 style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: 'var(--sp-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Visual Symptoms
                   </h4>
@@ -168,6 +170,8 @@ export default function DiagnosisReport() {
                 <div style={{ 
                   background: 'var(--accent-dim)', padding: 'var(--sp-4)', borderRadius: 'var(--radius-md)',
                   border: '1px solid rgba(74,222,128,0.2)'
+                  border: '1px solid var(--border)',
+                  borderLeft: '3px solid var(--accent)'
                 }}>
                   <h4 style={{ fontSize: '0.875rem', color: 'var(--accent)', marginBottom: 'var(--sp-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Expert Recommendation
@@ -181,6 +185,7 @@ export default function DiagnosisReport() {
           ))}
 
           <Card style={{ background: 'var(--bg-input)' }}>
+          <Card variant="inset">
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--sp-4)' }}>
               <AlertTriangle size={24} className="text-amber" />
               <div>

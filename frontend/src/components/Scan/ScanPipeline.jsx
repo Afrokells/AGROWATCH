@@ -49,10 +49,12 @@ export default function ScanPipeline({ onComplete }) {
               width: 44, height: 44, borderRadius: '50%',
               background: i <= step ? 'var(--accent)' : 'var(--bg-card)',
               color: i <= step ? 'var(--bg-base)' : 'var(--text-muted)',
+              color: i <= step ? 'var(--accent-contrast)' : 'var(--text-muted)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: `2px solid ${i <= step ? 'var(--accent)' : 'var(--border)'}`,
               transition: 'all 0.4s ease',
               boxShadow: i === step ? 'var(--shadow-glow)' : 'none',
+              boxShadow: i === step ? 'var(--shadow-md)' : 'none',
             }}>
               {i < step ? <CheckCircle2 size={24} /> : s.icon}
             </div>

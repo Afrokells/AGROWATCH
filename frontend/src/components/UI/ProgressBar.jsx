@@ -31,6 +31,9 @@ export default function ProgressBar({
       <div style={{
         height, borderRadius: 999,
         background: 'rgba(255,255,255,0.06)',
+        height, borderRadius: 'var(--radius-full)',
+        background: 'var(--bg-input)',
+        border: '1px solid var(--border)',
         overflow: 'hidden',
       }}>
         <div
@@ -42,6 +45,9 @@ export default function ProgressBar({
             background: `linear-gradient(90deg, ${color}aa, ${color})`,
             transition: animated ? 'width 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
             boxShadow: `0 0 8px ${color}60`,
+            borderRadius: 'var(--radius-full)',
+            background: color,
+            transition: animated ? 'width 0.6s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
           }}
         />
       </div>

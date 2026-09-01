@@ -68,6 +68,7 @@ export default function LoginPage() {
           <div style={{ textAlign: 'center', marginBottom: 'var(--sp-8)' }}>
             <div style={{ width: 48, height: 48, borderRadius: 'var(--radius-md)', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto var(--sp-4)' }}>
               <Leaf size={28} color="#0a1410" strokeWidth={2.5} />
+              <Leaf size={28} color="var(--accent-contrast)" strokeWidth={2.5} />
             </div>
             <h2 style={{ fontSize: '1.5rem', marginBottom: 4, color: 'var(--text-primary)' }}>Welcome Back</h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Securely login to your account</p>
