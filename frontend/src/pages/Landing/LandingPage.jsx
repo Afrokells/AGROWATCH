@@ -32,9 +32,9 @@ export default function LandingPage() {
       condition: 'Late Blight Detected',
       status: 'warning',
       confidence: '97% Match',
-      plantsCount: 18,
-      healthyCount: 14,
-      affectedCount: 4,
+      plantsCount: 400,
+      healthyCount: 300,
+      affectedCount: 100,
       advisory: 'Apply recommended copper fungicide and prune affected lower leaves to prevent spread.'
     },
     maize: {
@@ -42,8 +42,8 @@ export default function LandingPage() {
       condition: 'Healthy Field Vigor',
       status: 'success',
       confidence: '99% Match',
-      plantsCount: 32,
-      healthyCount: 32,
+      plantsCount: 400,
+      healthyCount: 400,
       affectedCount: 0,
       advisory: 'Crop health is optimal. Continue regular watering and weed control schedule.'
     },
@@ -52,8 +52,8 @@ export default function LandingPage() {
       condition: 'Mealybug Symptoms Spotted',
       status: 'warning',
       confidence: '94% Match',
-      plantsCount: 24,
-      healthyCount: 21,
+      plantsCount: 400,
+      healthyCount: 397,
       affectedCount: 3,
       advisory: 'Spray neem oil solution early morning to eradicate pests before flowering.'
     }
@@ -467,21 +467,28 @@ function Step({ number, icon, title, desc }) {
 
 function CropCard({ name, desc, benefits, icon, imgSrc }) {
   return (
-    <div className="crop-card">
-      <div className="crop-card__image-wrap">
-        <img src={imgSrc} alt={name} className="crop-card__image" />
+    <div className="glass-strong" style={{ overflow: 'hidden', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', border: '1px solid var(--border)' }}>
+      <div style={{ position: 'relative', height: 210, overflow: 'hidden' }}>
+        <img src={imgSrc} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-surface) 0%, transparent 35%)' }} />
-        <div className="crop-card__badge">
+        <div style={{ 
+          position: 'absolute', top: 12, right: 12, 
+          background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)', 
+          padding: '6px 12px', borderRadius: 'var(--radius-md)', 
+          display: 'flex', alignItems: 'center', gap: 6, 
+          color: '#fff', fontSize: '0.8rem', fontWeight: 700,
+          border: '1px solid rgba(255,255,255,0.15)'
+        }}>
           {icon} {name}
         </div>
       </div>
-      <div className="crop-card__body">
-        <h3 className="crop-card__title">{name}</h3>
+      <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)', flex: 1 }}>
+        <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{name}</h3>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6 }}>{desc}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', marginTop: 'auto', paddingTop: 'var(--sp-3)' }}>
           {benefits.map((b, i) => (
-            <div key={i} className="crop-card__benefit">
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor', flexShrink: 0 }} />
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: 'var(--accent)' }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor' }} />
               {b}
             </div>
           ))}

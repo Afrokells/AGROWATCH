@@ -38,7 +38,7 @@ def _load_model(crop_type: str):
     return _model_cache[crop_type]
 
 
-def run_detection(image_path: str, crop_type: str, conf_threshold: float = 0.25) -> List[Dict]:
+def run_detection(image_path: str, crop_type: str, conf_threshold: float = 0.45) -> List[Dict]:
     """
     Run YOLOv8 object detection on a single image.
 

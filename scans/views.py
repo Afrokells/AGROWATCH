@@ -73,6 +73,16 @@ class ScanViewSet(viewsets.ModelViewSet):
                             tmp.write(chunk)
                         tmp_paths.append(tmp.name)
 
+                # ── Validate Image Domain (Plant / Agricultural Check) ───────────
+                from crop_validator import validate_crop_image
+                is_valid, reason, val_metrics = validate_crop_image(tmp_paths[0], crop_type)
+                if not is_valid:
+                    scan.delete()
+                    return Response(
+                        {"detail": reason, "validation_error": True, "metrics": val_metrics},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
                 # Run tracking pipeline (detection + ByteTrack)
                 from mltracker import run_tracking
                 tracking_result = run_tracking(tmp_paths, crop_type)

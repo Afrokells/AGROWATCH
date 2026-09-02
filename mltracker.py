@@ -62,7 +62,7 @@ def _get_class_names(crop_type: str, session: Any) -> List[str]:
 _session_cache: Dict[str, Any] = {}
 
 INPUT_SIZE = 640  # YOLOv8 standard input
-CONF_THRESHOLD = 0.25
+CONF_THRESHOLD = 0.45
 IOU_THRESHOLD  = 0.45
 
 

@@ -118,21 +118,21 @@ export default function ScanResults() {
           
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 'var(--sp-3)', borderBottom: '1px dashed var(--border)' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Crop Type</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Crop Value Chain</span>
               <span style={{ fontWeight: 600, textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span className="text-accent">{CROP_ICONS[scan.crop_type]}</span> {scan.crop_type}
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 'var(--sp-3)', borderBottom: '1px dashed var(--border)' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Precision</span>
-              <span style={{ fontWeight: 600 }}>{scan.precision.toFixed(2)}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Model Benchmark Precision</span>
+              <span style={{ fontWeight: 600 }}>{(scan.precision * 100).toFixed(1)}%</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 'var(--sp-3)', borderBottom: '1px dashed var(--border)' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Recall</span>
-              <span style={{ fontWeight: 600 }}>{scan.recall.toFixed(2)}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Model Benchmark Recall</span>
+              <span style={{ fontWeight: 600 }}>{(scan.recall * 100).toFixed(1)}%</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 'var(--sp-3)', borderBottom: '1px dashed var(--border)' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Identity Switches</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Tracking ID Switches</span>
               <span style={{ fontWeight: 600 }}>{scan.identity_switches}</span>
             </div>
 

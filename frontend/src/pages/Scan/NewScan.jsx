@@ -80,8 +80,7 @@ export default function NewScan() {
       console.error(err);
       clearInterval(interval);
       setIsScanning(false);
-      addToast('Failed to run analysis', 'error');
-    }
+      const errorMsg = err.response?.data?.detail || 'Failed to run analysis. Please try again.';
   };
 
   if (loading) return null;
