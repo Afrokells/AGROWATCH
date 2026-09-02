@@ -81,6 +81,8 @@ export default function NewScan() {
       clearInterval(interval);
       setIsScanning(false);
       const errorMsg = err.response?.data?.detail || 'Failed to run analysis. Please try again.';
+      addToast(errorMsg, 'error');
+    }
   };
 
   if (loading) return null;
