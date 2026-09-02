@@ -35,112 +35,212 @@ class ScanViewSet(viewsets.ModelViewSet):
           - farm          (int)      Farm FK
           - crop_type     (str)      "tomato" | "maize" | "pineapple"
           - images[]      (files)    One or more uploaded image files
+          - batch_mode    (bool/str) If true or multiple images, processes each as an individual scan
 
-        If images are provided, runs real YOLOv8 inference (mldetector + mltracker).
-        Falls back to the simulated metrics if the ML stack is not available.
+        If images are provided, runs real YOLOv8 inference (crop_validator + mltracker).
         """
-        farm_id   = request.data.get("farm")
-        crop_type = request.data.get("crop_type", "tomato").lower()
-        images    = request.FILES.getlist("images")
+        farm_id    = request.data.get("farm")
+        crop_type  = request.data.get("crop_type", "tomato").lower()
+        crop_type  = request.data.get("crop_type", "").lower().strip()
+        images     = request.FILES.getlist("images")
+        batch_mode = str(request.data.get("batch_mode", "true")).lower() in ("true", "1", "yes")
 
-        # ── Build initial Scan record ─────────────────────────────────────────
-        scan_data = {
-            "farm":              farm_id,
-            "crop_type":         crop_type,
-            "status":            "processing",
-            "image_count":       len(images) if images else int(request.data.get("image_count", 0)),
-            "total_plants":      0,
-            "disease_flags":     0,
-            "identity_switches": 0,
-            **CROP_METRICS.get(crop_type, CROP_METRICS["tomato"]),
-        }
+        # ── Validate Farm FK ──────────────────────────────────────────────────
+        if not farm_id:
+            return Response(
+                {"detail": "Please select a valid farm plot to scan."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        serializer = self.get_serializer(data=scan_data)
-        serializer.is_valid(raise_exception=True)
-        scan = serializer.save()
+        from farms.models import Farm
+        try:
+            farm_obj = Farm.objects.get(pk=farm_id)
+            if not crop_type:
+                crop_type = farm_obj.crop_type.lower()
+        except Farm.DoesNotExist:
+            return Response(
+                {"detail": f"Farm with ID {farm_id} does not exist."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        # ── Run real inference if images were uploaded ─────────────────────────
-        if images:
-            scan.image = images[0]
-            scan.save()
-            tmp_paths = []
-            try:
-                # Save uploaded images to temp files
-                for img in images:
-                    suffix = os.path.splitext(img.name)[1] or ".jpg"
+        if not crop_type:
+            crop_type = "tomato"
+
+        if not images:
+            # Simulated / Manual single scan fallback
+            scan_data = {
+                "farm":              farm_id,
+                "crop_type":         crop_type,
+                "status":            "completed",
+                "image_count":       int(request.data.get("image_count", 0)),
+                "total_plants":      int(request.data.get("total_plants", 0)),
+                "disease_flags":     int(request.data.get("disease_flags", 0)),
+                "identity_switches": int(request.data.get("identity_switches", 0)),
+                "mota":              float(request.data.get("mota", 0)),
+                **CROP_METRICS.get(crop_type, CROP_METRICS["tomato"]),
+            }
+            serializer = self.get_serializer(data=scan_data)
+            serializer.is_valid(raise_exception=True)
+            scan = serializer.save()
+            return Response(ScanSerializer(scan).data, status=status.HTTP_201_CREATED)
+
+        from crop_validator import validate_crop_image
+        from mltracker import run_tracking
+
+        created_scans = []
+        metrics = CROP_METRICS.get(crop_type, CROP_METRICS["tomato"])
+
+        # ── Handle Batch Mode (Two or more scans at a go) ──────────────────────
+        if len(images) > 1 and batch_mode:
+            for idx, img in enumerate(images):
+                suffix = os.path.splitext(img.name)[1] or ".jpg"
+                tmp_path = None
+                try:
                     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
                         for chunk in img.chunks():
                             tmp.write(chunk)
-                        tmp_paths.append(tmp.name)
+                        tmp_path = tmp.name
 
-                # ── Validate Image Domain (Plant / Agricultural Check) ───────────
-                from crop_validator import validate_crop_image
-                is_valid, reason, val_metrics = validate_crop_image(tmp_paths[0], crop_type)
-                if not is_valid:
-                    scan.delete()
-                    return Response(
-                        {"detail": reason, "validation_error": True, "metrics": val_metrics},
-                        status=status.HTTP_400_BAD_REQUEST,
+                    # Validate domain for each image
+                    is_valid, reason, val_metrics = validate_crop_image(tmp_path, crop_type)
+                    if not is_valid:
+                        # Skip or return error if all fail
+                        continue
+
+                    # Create Scan record
+                    scan = Scan.objects.create(
+                        farm_id=farm_id,
+                        crop_type=crop_type,
+                        status="processing",
+                        image_count=1,
+                        image=img,
+                        precision=metrics["precision"],
+                        recall=metrics["recall"],
+                        f1_score=metrics["f1_score"],
                     )
 
-                # Run tracking pipeline (detection + ByteTrack)
-                from mltracker import run_tracking
-                tracking_result = run_tracking(tmp_paths, crop_type)
+                    # Run tracking for this individual image
+                    tracking_result = run_tracking([tmp_path], crop_type)
 
-                # Persist individual Detection records
-                detection_objs = []
-                for det in tracking_result["tracked_detections"]:
-                    detection_objs.append(Detection(
-                        scan=scan,
-                        track_id=det["track_id"],
-                        confidence=det["confidence"],
-                        x=det["x"],
-                        y=det["y"],
-                        w=det["w"],
-                        h=det["h"],
-                        disease_flag_id=det["class_name"],
-                    ))
-                Detection.objects.bulk_create(detection_objs)
+                    # Create detections
+                    detection_objs = [
+                        Detection(
+                            scan=scan,
+                            track_id=det["track_id"],
+                            confidence=det["confidence"],
+                            x=det["x"],
+                            y=det["y"],
+                            w=det["w"],
+                            h=det["h"],
+                            disease_flag_id=det["class_name"],
+                        )
+                        for det in tracking_result["tracked_detections"]
+                    ]
+                    Detection.objects.bulk_create(detection_objs)
 
-                # Update the Scan record with real results
-                metrics = CROP_METRICS.get(crop_type, CROP_METRICS["tomato"])
-                scan.total_plants      = tracking_result["total_plants"]
-                scan.disease_flags     = tracking_result["disease_flags"]
-                scan.identity_switches = tracking_result["id_switches"]
-                scan.mota              = tracking_result["mota_approx"]
-                scan.precision         = metrics["precision"]
-                scan.recall            = metrics["recall"]
-                scan.f1_score          = metrics["f1_score"]
-                scan.status            = "completed"
-                scan.save()
+                    scan.total_plants      = tracking_result["total_plants"]
+                    scan.disease_flags     = tracking_result["disease_flags"]
+                    scan.identity_switches = tracking_result["id_switches"]
+                    scan.mota              = tracking_result["mota_approx"]
+                    scan.status            = "completed"
+                    scan.save()
+                    created_scans.append(scan)
 
-            except Exception as exc:
-                import traceback
-                print(f"[AgroWatch ML] Inference failed. Error: {exc}")
-                traceback.print_exc()
-                scan.status = "failed"
-                scan.save()
+                except Exception as exc:
+                    print(f"[AgroWatch Batch ML] Error processing image {idx}: {exc}")
+                finally:
+                    if tmp_path and os.path.exists(tmp_path):
+                        try:
+                            os.unlink(tmp_path)
+                        except OSError:
+                            pass
+
+            if not created_scans:
                 return Response(
-                    {"detail": "Image analysis failed. Check the server logs for the inference error."},
-                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    {"detail": "None of the uploaded images passed crop validation or could be analyzed. Please check your photos."},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-            finally:
-                # Clean up temp files
-                for path in tmp_paths:
-                    try:
-                        os.unlink(path)
-                    except OSError:
-                        pass
-        else:
-            # No images — purely simulated scan submitted from frontend
-            scan.total_plants      = int(request.data.get("total_plants",  0))
-            scan.disease_flags     = int(request.data.get("disease_flags", 0))
-            scan.identity_switches = int(request.data.get("identity_switches", 0))
-            scan.mota              = float(request.data.get("mota", 0))
+
+            return Response(
+                {
+                    "batch": True,
+                    "created_count": len(created_scans),
+                    "id": created_scans[0].id,
+                    "scans": ScanSerializer(created_scans, many=True).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        # ── Single Scan / Multi-frame Sequence Mode ───────────────────────────
+        tmp_paths = []
+        try:
+            for img in images:
+                suffix = os.path.splitext(img.name)[1] or ".jpg"
+                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                    for chunk in img.chunks():
+                        tmp.write(chunk)
+                    tmp_paths.append(tmp.name)
+
+            # Validate Image Domain
+            is_valid, reason, val_metrics = validate_crop_image(tmp_paths[0], crop_type)
+            if not is_valid:
+                return Response(
+                    {"detail": reason, "validation_error": True, "metrics": val_metrics},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            scan = Scan.objects.create(
+                farm_id=farm_id,
+                crop_type=crop_type,
+                status="processing",
+                image_count=len(images),
+                image=images[0],
+                precision=metrics["precision"],
+                recall=metrics["recall"],
+                f1_score=metrics["f1_score"],
+            )
+
+            # Run tracking pipeline
+            tracking_result = run_tracking(tmp_paths, crop_type)
+
+            detection_objs = [
+                Detection(
+                    scan=scan,
+                    track_id=det["track_id"],
+                    confidence=det["confidence"],
+                    x=det["x"],
+                    y=det["y"],
+                    w=det["w"],
+                    h=det["h"],
+                    disease_flag_id=det["class_name"],
+                )
+                for det in tracking_result["tracked_detections"]
+            ]
+            Detection.objects.bulk_create(detection_objs)
+
+            scan.total_plants      = tracking_result["total_plants"]
+            scan.disease_flags     = tracking_result["disease_flags"]
+            scan.identity_switches = tracking_result["id_switches"]
+            scan.mota              = tracking_result["mota_approx"]
             scan.status            = "completed"
             scan.save()
 
-        return Response(ScanSerializer(scan).data, status=status.HTTP_201_CREATED)
+            return Response(ScanSerializer(scan).data, status=status.HTTP_201_CREATED)
+
+        except Exception as exc:
+            import traceback
+            print(f"[AgroWatch ML] Inference failed. Error: {exc}")
+            traceback.print_exc()
+            return Response(
+                {"detail": "Image analysis failed. Check the server logs for the inference error."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        finally:
+            for path in tmp_paths:
+                try:
+                    os.unlink(path)
+                except OSError:
+                    pass
 
 
 class DetectionViewSet(viewsets.ModelViewSet):

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UploadCloud, Image as ImageIcon, X, AlertCircle } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, X, AlertCircle, Layers, Sparkles, CheckCircle2 } from 'lucide-react';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -16,6 +16,7 @@ export default function NewScan() {
   const [files, setFiles] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [scanMode, setScanMode] = useState('batch'); // 'batch' (separate scans at a go) vs 'sequence' (single multi-frame scan)
 
   const [userFarms, setUserFarms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,9 @@ export default function NewScan() {
       try {
         const farms = await farmsAPI.list(user?.id);
         setUserFarms(farms);
+        if (farms.length > 0 && !selectedFarm) {
+          setSelectedFarm(farms[0].id);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -52,29 +56,37 @@ export default function NewScan() {
     let currentProgress = 0;
     
     const interval = setInterval(() => {
-      currentProgress += Math.random() * 15;
+      currentProgress += Math.random() * 12 + 5;
       if (currentProgress < 95) {
-        setProgress(currentProgress);
+        setProgress(Math.min(94, Math.round(currentProgress)));
       }
-    }, 500);
+    }, 400);
 
     try {
       const farm = userFarms.find(f => f.id === selectedFarm);
       const crop = farm ? farm.crop_type : 'tomato';
 
-      // Build FormData to send real image files to the backend for YOLOv8 inference
+      // Build FormData to send real image files to backend for YOLOv8 inference
       const formData = new FormData();
       formData.append('farm', selectedFarm);
       formData.append('crop_type', crop);
+      formData.append('batch_mode', scanMode === 'batch' ? 'true' : 'false');
       files.forEach(file => formData.append('images', file));
 
-      const newScan = await scansAPI.create(formData);
+      const response = await scansAPI.create(formData);
 
       clearInterval(interval);
       setProgress(100);
 
       setTimeout(() => {
-        navigate(`/scan/${newScan.id}`);
+        if (response.batch && response.created_count > 1) {
+          addToast(`Successfully completed ${response.created_count} scans at a go! All records saved to your history.`, 'success');
+          navigate('/scans');
+        } else {
+          const scanId = response.id || (response.scans && response.scans[0]?.id);
+          addToast('Scan analysis completed successfully!', 'success');
+          navigate(`/scan/${scanId}`);
+        }
       }, 500);
     } catch (err) {
       console.error(err);
@@ -105,15 +117,19 @@ export default function NewScan() {
   return (
     <div className="animate-fade-in" style={{ maxWidth: 800, margin: '0 auto' }}>
       <div className="page-header">
-        <h1 className="page-title">Initiate New Scan</h1>
-        <p className="page-subtitle">Upload drone imagery for AI-powered crop analysis.</p>
+        <div>
+          <h1 className="page-title">Initiate New Scan</h1>
+          <p className="page-subtitle">Upload drone imagery or field photos. You can upload multiple images to run scans at a go.</p>
+        </div>
       </div>
 
       <Card>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-6)' }}>
           {/* Farm Selection */}
           <div>
-            <label style={{ display: 'block', marginBottom: 'var(--sp-2)', fontWeight: 500 }}>Select Farm Plot</label>
+            <label style={{ display: 'block', marginBottom: 'var(--sp-2)', fontWeight: 600, color: 'var(--text-primary)' }}>
+              Select Farm Plot
+            </label>
             <Select 
               value={selectedFarm} 
               onChange={setSelectedFarm}
@@ -128,7 +144,17 @@ export default function NewScan() {
 
           {/* File Upload Area */}
           <div>
-            <label style={{ display: 'block', marginBottom: 'var(--sp-2)', fontWeight: 500 }}>Upload Drone Imagery</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-2)' }}>
+              <label style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                Upload Crop Images (Single or Multi-Scan Batch)
+              </label>
+              {files.length > 0 && (
+                <span style={{ fontSize: '0.8125rem', color: 'var(--accent)', fontWeight: 600 }}>
+                  {files.length} file{files.length > 1 ? 's' : ''} selected
+                </span>
+              )}
+            </div>
+
             <div style={{
               border: '2px dashed var(--border)',
               borderRadius: 'var(--radius-lg)',
@@ -151,20 +177,92 @@ export default function NewScan() {
                 }}
               />
               <UploadCloud size={48} style={{ color: 'var(--accent)', margin: '0 auto var(--sp-4)' }} />
-              <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-2)' }}>Click or drag images here</h3>
+              <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-2)' }}>
+                Click or drag 1 or more images here
+              </h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                Supports JPG, PNG (Max 20MB per file)
+                Supports JPG, PNG, WebP (Upload multiple photos to run batch scans at a go)
               </p>
             </div>
           </div>
 
-          {/* File List */}
+          {/* Batch Mode Options (Shown when 2+ files selected) */}
+          {files.length > 1 && (
+            <div style={{
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--sp-4)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--sp-3)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--accent)', fontWeight: 600, fontSize: '0.9rem' }}>
+                <Layers size={18} /> Multi-Scan Processing Options ({files.length} Photos Selected)
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-3)' }}>
+                <div 
+                  onClick={() => setScanMode('batch')}
+                  style={{
+                    padding: 'var(--sp-3)',
+                    borderRadius: 'var(--radius-md)',
+                    border: `1.5px solid ${scanMode === 'batch' ? 'var(--accent)' : 'var(--border)'}`,
+                    background: scanMode === 'batch' ? 'var(--accent-dim)' : 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span>Batch Mode (Recommended)</span>
+                    {scanMode === 'batch' && <CheckCircle2 size={16} className="text-accent" />}
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
+                    Process each photo as an individual plot scan at a go. All scans will be saved to your history.
+                  </p>
+                </div>
+
+                <div 
+                  onClick={() => setScanMode('sequence')}
+                  style={{
+                    padding: 'var(--sp-3)',
+                    borderRadius: 'var(--radius-md)',
+                    border: `1.5px solid ${scanMode === 'sequence' ? 'var(--accent)' : 'var(--border)'}`,
+                    background: scanMode === 'sequence' ? 'var(--accent-dim)' : 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span>Single Multi-Frame Scan</span>
+                    {scanMode === 'sequence' && <CheckCircle2 size={16} className="text-accent" />}
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
+                    Combine continuous drone flight frames into a single tracked orthomosaic scan.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Selected File List */}
           {files.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                {files.length} file(s) selected
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  Selected Imagery ({files.length})
+                </span>
+                {!isScanning && (
+                  <button 
+                    onClick={() => setFiles([])}
+                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', cursor: 'pointer' }}
+                  >
+                    Clear all
+                  </button>
+                )}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', maxHeight: 200, overflowY: 'auto' }}>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', maxHeight: 220, overflowY: 'auto' }}>
                 {files.map((file, i) => (
                   <div key={i} style={{ 
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -173,19 +271,19 @@ export default function NewScan() {
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', overflow: 'hidden' }}>
                       <ImageIcon size={16} className="text-accent" style={{ flexShrink: 0 }} />
-                      <span style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <span style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-primary)' }}>
                         {file.name}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       </span>
                     </div>
                     {!isScanning && (
                       <button 
                         onClick={() => removeFile(i)}
-                        style={{ 
-                          background: 'none', border: 'none', color: 'var(--text-muted)',
-                          cursor: 'pointer', padding: 4, display: 'flex'
-                        }}
+                        style={{ border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                       >
-                        <X size={14} />
+                        <X size={16} />
                       </button>
                     )}
                   </div>
@@ -194,31 +292,40 @@ export default function NewScan() {
             </div>
           )}
 
-          {/* Progress / Submit */}
-          <div style={{ marginTop: 'var(--sp-4)' }}>
-            {isScanning ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                  <span style={{ color: 'var(--accent)', fontWeight: 500 }}>Analyzing imagery...</span>
-                  <span>{Math.round(progress)}%</span>
-                </div>
-                <div style={{ height: 6, background: 'var(--bg-input)', borderRadius: 3, overflow: 'hidden' }}>
-                  <div style={{ 
-                    height: '100%', background: 'var(--accent)', 
-                    width: `${progress}%`, transition: 'width 0.2s ease' 
-                  }} />
-                </div>
+          {/* Progress Bar */}
+          {isScanning && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', fontWeight: 600 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Sparkles size={16} className="text-accent" />
+                  {files.length > 1 && scanMode === 'batch'
+                    ? `Running YOLOv8 Batch Scans on ${files.length} images at a go...`
+                    : 'Running AI YOLOv8 Crop Analysis & Tracking...'}
+                </span>
+                <span>{progress}%</span>
               </div>
-            ) : (
-              <Button 
-                fullWidth 
-                onClick={startScan}
-                disabled={!selectedFarm || files.length === 0}
-              >
-                Run AI Analysis
-              </Button>
-            )}
-          </div>
+              <div style={{ height: 8, background: 'var(--bg-input)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
+                <div style={{ 
+                  height: '100%', width: `${progress}%`, 
+                  background: 'linear-gradient(90deg, var(--accent), var(--amber))', 
+                  borderRadius: 'var(--radius-full)',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+            </div>
+          )}
+
+          {/* Submit Action */}
+          <Button 
+            onClick={startScan} 
+            disabled={!selectedFarm || files.length === 0 || isScanning}
+            fullWidth
+            size="lg"
+          >
+            {isScanning 
+              ? (files.length > 1 && scanMode === 'batch' ? `Processing ${files.length} Scans...` : 'Analyzing Crop Health...') 
+              : (files.length > 1 && scanMode === 'batch' ? `Start Batch Analysis (${files.length} Scans at a go)` : 'Start AI Analysis')}
+          </Button>
         </div>
       </Card>
     </div>
