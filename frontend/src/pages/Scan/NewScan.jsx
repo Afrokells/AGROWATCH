@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { UploadCloud, Image as ImageIcon, X, AlertCircle, Layers, Sparkles, CheckCircle2 } from 'lucide-react';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
@@ -12,7 +12,10 @@ export default function NewScan() {
   const { user } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
-  const [selectedFarm, setSelectedFarm] = useState('');
+  const location = useLocation();
+  const preselectedFarmId = location.state?.farmId;
+
+  const [selectedFarm, setSelectedFarm] = useState(preselectedFarmId || '');
   const [files, setFiles] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -26,7 +29,9 @@ export default function NewScan() {
       try {
         const farms = await farmsAPI.list(user?.id);
         setUserFarms(farms);
-        if (farms.length > 0 && !selectedFarm) {
+        if (preselectedFarmId && farms.some(f => f.id === preselectedFarmId || String(f.id) === String(preselectedFarmId))) {
+          setSelectedFarm(preselectedFarmId);
+        } else if (farms.length > 0 && !selectedFarm) {
           setSelectedFarm(farms[0].id);
         }
       } catch (err) {
@@ -36,7 +41,7 @@ export default function NewScan() {
       }
     }
     if (user) loadFarms();
-  }, [user]);
+  }, [user, preselectedFarmId]);
 
   const handleFileChange = (e) => {
     if (e.target.files) {
