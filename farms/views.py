@@ -18,4 +18,4 @@ class FarmViewSet(viewsets.ModelViewSet):
         return Farm.objects.all().order_by('-created_at')
 
     def perform_create(self, serializer):
-        serializer.save(farmer=self.request.user)
+        farmer_user = self.request.user if self.request.user.is_authenticated else None

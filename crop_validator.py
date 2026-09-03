@@ -3,6 +3,7 @@ AgroWatch Crop Image & Species Validator
 Performs multi-stage pre-inference verification:
 1. Rejects non-agricultural imagery (human faces, skin, animals, vehicles, indoor objects, blank images).
 2. Performs Crop Species & Morphology Cross-Validation (prevents Tomato leaves on Maize plots, etc.).
+Lightweight & Cloud-Safe: Operates via pure OpenCV + NumPy with optional PyTorch enhancement.
 """
 
 import os
@@ -10,9 +11,6 @@ from pathlib import Path
 from typing import Tuple, Dict, Any
 import cv2
 import numpy as np
-import torch
-import torchvision.models as models
-import torchvision.transforms as transforms
 from PIL import Image
 
 # Global lazy-loaded semantic classifier
@@ -22,27 +20,23 @@ _CATEGORIES = None
 
 
 def _get_classifier():
+    """Safely lazy-loads PyTorch semantic classifier if torch/torchvision are installed."""
     global _CLASSIFIER, _TRANSFORM, _CATEGORIES
     if _CLASSIFIER is None:
         try:
+            import torch
+            import torchvision.models as models
             weights = models.MobileNet_V3_Small_Weights.DEFAULT
             model = models.mobilenet_v3_small(weights=weights)
             model.eval()
             _CLASSIFIER = model
             _CATEGORIES = weights.meta["categories"]
             _TRANSFORM = weights.transforms()
-        except Exception as e:
-            print(f"[CropValidator] Warning: Could not initialize MobileNetV3: {e}")
+        except Exception:
+            # Running on lightweight cloud tier (e.g. Render) without heavy PyTorch
             _CLASSIFIER = False
     return _CLASSIFIER, _TRANSFORM, _CATEGORIES
 
-
-# Semantic class indicators for target crops and non-crop objects
-NON_CROP_KEYWORDS = {
-    "person", "face", "suit", "jersey", "t-shirt", "wig", "hair",
-    "dog", "cat", "car", "truck", "laptop", "cellular", "screen",
-    "desk", "couch", "chair", "wall", "room", "sofa", "bed"
-}
 
 CROP_SEMANTIC_KEYWORDS = {
     "maize": {"corn", "ear", "corncob", "hay", "maize", "grain", "cereal"},
@@ -53,8 +47,8 @@ CROP_SEMANTIC_KEYWORDS = {
 
 def analyze_leaf_morphology(img_bgr: np.ndarray) -> Dict[str, Any]:
     """
-    Analyzes leaf venation and geometry:
-    - Monocots (Maize): Strong parallel venation (low variance in dominant edge gradient angle).
+    Analyzes leaf venation and geometry via OpenCV Sobel operators:
+    - Monocots (Maize): Strong parallel venation (sharp peak in dominant edge gradient angle).
     - Dicots (Tomato): Reticulate / branched venation (multi-directional gradient distribution).
     """
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
@@ -73,7 +67,7 @@ def analyze_leaf_morphology(img_bgr: np.ndarray) -> Dict[str, Any]:
         # Wrap angles to 0-180 (axis orientation)
         angles_180 = np.mod(sig_angles, 180)
         hist, _ = np.histogram(angles_180, bins=18, range=(0, 180))
-        # Parallel venation has a very sharp dominant peak
+        # Parallel venation has a dominant peak
         max_bin_ratio = float(np.max(hist) / (np.sum(hist) + 1e-6))
     else:
         max_bin_ratio = 0.0
@@ -186,6 +180,7 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
     classifier, transform, categories = _get_classifier()
     if classifier and transform:
         try:
+            import torch
             pil_img = Image.open(image_path).convert("RGB")
             tensor = transform(pil_img).unsqueeze(0)
             with torch.no_grad():
@@ -203,11 +198,9 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
             is_predicted_pineapple = any(any(k in lbl for k in CROP_SEMANTIC_KEYWORDS["pineapple"]) for lbl in predicted_labels[:3])
             is_predicted_tomato = any(any(k in lbl for k in CROP_SEMANTIC_KEYWORDS["tomato"]) for lbl in predicted_labels[:3])
 
-            # Monocot (Maize) vs Dicot (Tomato) Venation Check:
-            # Maize leaves have high parallelism (> 0.28). Broad reticulate dicot leaves have lower parallelism (< 0.20)
             venation = morphology["venation_parallelism"]
 
-            # If user selected MAIZE, but image is Tomato / Dicot
+            # If user selected MAIZE, but image is Tomato / Pineapple
             if crop_type == "maize":
                 if is_predicted_pineapple:
                     return (
@@ -216,7 +209,6 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
                         f"Please upload Maize foliage or select your Pineapple farm plot.",
                         metrics,
                     )
-                # If broad lobed dicot tomato leaf uploaded with low venation parallelism and tomato semantics
                 if is_predicted_tomato and not is_predicted_maize and venation < 0.18:
                     return (
                         False,
@@ -248,7 +240,7 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
                     return (
                         False,
                         f"Crop Mismatch: The uploaded image appears to be a Maize plant, but you selected a Pineapple farm. "
-                        f"Please upload Pineapple plants or select your Pineapple farm plot.",
+                        f"Please upload Pineapple plants or select your Maize farm plot.",
                         metrics,
                     )
                 if is_predicted_tomato:
@@ -260,6 +252,6 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
                     )
 
         except Exception as exc:
-            print(f"[CropValidator] Semantic check error: {exc}")
+            print(f"[CropValidator] Semantic check notice: {exc}")
 
     return True, f"Valid {crop_display} crop image.", metrics

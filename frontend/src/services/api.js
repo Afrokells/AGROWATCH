@@ -25,6 +25,18 @@ http.interceptors.request.use((cfg) => {
   return cfg;
 });
 
+// Handle 401 Unauthorized (e.g. stale token from local DB sent to new Render DB)
+http.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      console.warn('Session expired or invalid token for cloud backend. Clearing session.');
+      localStorage.removeItem('agrowatch_user');
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default http;
 
 // ── Users ─────────────────────────────────────────────────────────────────────
