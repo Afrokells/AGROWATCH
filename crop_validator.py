@@ -1,7 +1,8 @@
 """
-AgroWatch Crop Image Validator
-Performs pre-inference domain verification to reject out-of-distribution imagery
-(e.g., human faces, indoor scenes, skin, furniture, vehicles) before running YOLO.
+AgroWatch Crop Image & Species Validator
+Performs multi-stage pre-inference verification:
+1. Rejects non-agricultural imagery (human faces, skin, animals, vehicles, indoor objects, blank images).
+2. Performs Crop Species & Morphology Cross-Validation (prevents Tomato leaves on Maize plots, etc.).
 """
 
 import os
@@ -9,11 +10,84 @@ from pathlib import Path
 from typing import Tuple, Dict, Any
 import cv2
 import numpy as np
+import torch
+import torchvision.models as models
+import torchvision.transforms as transforms
+from PIL import Image
+
+# Global lazy-loaded semantic classifier
+_CLASSIFIER = None
+_TRANSFORM = None
+_CATEGORIES = None
+
+
+def _get_classifier():
+    global _CLASSIFIER, _TRANSFORM, _CATEGORIES
+    if _CLASSIFIER is None:
+        try:
+            weights = models.MobileNet_V3_Small_Weights.DEFAULT
+            model = models.mobilenet_v3_small(weights=weights)
+            model.eval()
+            _CLASSIFIER = model
+            _CATEGORIES = weights.meta["categories"]
+            _TRANSFORM = weights.transforms()
+        except Exception as e:
+            print(f"[CropValidator] Warning: Could not initialize MobileNetV3: {e}")
+            _CLASSIFIER = False
+    return _CLASSIFIER, _TRANSFORM, _CATEGORIES
+
+
+# Semantic class indicators for target crops and non-crop objects
+NON_CROP_KEYWORDS = {
+    "person", "face", "suit", "jersey", "t-shirt", "wig", "hair",
+    "dog", "cat", "car", "truck", "laptop", "cellular", "screen",
+    "desk", "couch", "chair", "wall", "room", "sofa", "bed"
+}
+
+CROP_SEMANTIC_KEYWORDS = {
+    "maize": {"corn", "ear", "corncob", "hay", "maize", "grain", "cereal"},
+    "tomato": {"tomato", "nightshade", "bell_pepper", "cucumber", "zucchini", "vegetable", "leaf"},
+    "pineapple": {"pineapple", "ananas", "artichoke", "bromeliad"},
+}
+
+
+def analyze_leaf_morphology(img_bgr: np.ndarray) -> Dict[str, Any]:
+    """
+    Analyzes leaf venation and geometry:
+    - Monocots (Maize): Strong parallel venation (low variance in dominant edge gradient angle).
+    - Dicots (Tomato): Reticulate / branched venation (multi-directional gradient distribution).
+    """
+    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    
+    # Compute Sobel gradients
+    gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
+    gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
+    
+    mag, ang = cv2.cartToPolar(gx, gy, angleInDegrees=True)
+    
+    # Filter for significant edge pixels
+    thresh = np.percentile(mag, 75)
+    sig_angles = ang[mag > thresh]
+    
+    if len(sig_angles) > 50:
+        # Wrap angles to 0-180 (axis orientation)
+        angles_180 = np.mod(sig_angles, 180)
+        hist, _ = np.histogram(angles_180, bins=18, range=(0, 180))
+        # Parallel venation has a very sharp dominant peak
+        max_bin_ratio = float(np.max(hist) / (np.sum(hist) + 1e-6))
+    else:
+        max_bin_ratio = 0.0
+
+    return {
+        "venation_parallelism": round(max_bin_ratio, 3),
+    }
 
 
 def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[bool, str, Dict[str, Any]]:
     """
-    Validates whether the uploaded image contains legitimate plant / agricultural imagery.
+    Validates that:
+    1. The image is a legitimate plant/crop photo (not human face, car, wall, animal).
+    2. The image matches the selected crop value chain (Tomato, Maize, Pineapple).
 
     Args:
         image_path: Path to the image file.
@@ -22,6 +96,9 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
     Returns:
         (is_valid: bool, reason: str, metrics: dict)
     """
+    crop_type = (crop_type or "tomato").lower().strip()
+    crop_display = crop_type.capitalize()
+
     if not os.path.exists(image_path):
         return False, "Image file not found on server.", {}
 
@@ -45,37 +122,32 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
     rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB).astype(np.float32)
 
     # ── 1. Check for Human Skin / Face Dominance ──────────────────────────────
-    # Skin range in YCrCb: Cr in [133, 175], Cb in [77, 127]
     skin_mask_ycrcb = (ycrcb[:, :, 1] >= 133) & (ycrcb[:, :, 1] <= 175) & \
                       (ycrcb[:, :, 2] >= 77) & (ycrcb[:, :, 2] <= 127)
-    
-    # Secondary check in HSV for skin hue (0 - 25, saturation 20 - 200, value >= 40)
     skin_mask_hsv = (hsv[:, :, 0] <= 25) & (hsv[:, :, 1] >= 20) & (hsv[:, :, 1] <= 200) & (hsv[:, :, 2] >= 40)
     combined_skin = skin_mask_ycrcb & skin_mask_hsv
     skin_ratio = np.sum(combined_skin) / total_pixels
 
-    # ── 2. Vegetation & Agricultural Color Analysis ───────────────────────────
-    # Plant foliage hues in HSV: Green (28-90), Yellow/Gold/Ripening (12-32)
+    # ── 2. Vegetation & Botanical Color Analysis ──────────────────────────────
     green_mask = (hsv[:, :, 0] >= 28) & (hsv[:, :, 0] <= 90) & (hsv[:, :, 1] >= 30) & (hsv[:, :, 2] >= 25)
     green_ratio = np.sum(green_mask) / total_pixels
 
-    # Excess Green Index (ExG = 2G - R - B)
     r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
     denominator = r + g + b + 1e-6
     norm_r, norm_g, norm_b = r / denominator, g / denominator, b / denominator
     exg = 2 * norm_g - norm_r - norm_b
     exg_positive_ratio = np.sum(exg > 0.04) / total_pixels
 
-    # Yellow/Amber/Ripening fruit/Soil range (e.g. ripe pineapple, maize tassels/husks/cobs)
     amber_crop_mask = (hsv[:, :, 0] >= 12) & (hsv[:, :, 0] <= 32) & (hsv[:, :, 1] >= 40) & (hsv[:, :, 2] >= 35)
     amber_ratio = np.sum(amber_crop_mask) / total_pixels
 
-    # Combined botanical index
     botanical_coverage = green_ratio + (amber_ratio * 0.6) + (exg_positive_ratio * 0.5)
 
     # ── 3. Texture & Foliar Edge Complexity ───────────────────────────────────
     gray = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)
     laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+
+    morphology = analyze_leaf_morphology(img_resized)
 
     metrics = {
         "skin_ratio": round(float(skin_ratio), 4),
@@ -84,35 +156,110 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
         "amber_ratio": round(float(amber_ratio), 4),
         "botanical_coverage": round(float(botanical_coverage), 4),
         "texture_laplacian_var": round(float(laplacian_var), 2),
+        "morphology": morphology,
     }
 
-    # ── Evaluation Rules ──────────────────────────────────────────────────────
-    
-    # Rule A: Clear Human Face / Skin Dominance with minimal botanical vegetation
+    # ── Stage 1: Domain Rejection Rules (Faces, Non-Crops, Blank Walls) ───────
     if skin_ratio > 0.30 and green_ratio < 0.08 and exg_positive_ratio < 0.08:
         return (
             False,
             "The uploaded image appears to contain a human face or skin rather than agricultural crops. "
             "Please upload clear aerial drone or field photos of your plants.",
-            metrics
+            metrics,
         )
 
-    # Rule B: Extreme lack of any botanical, foliar, or agricultural crop coverage
     if botanical_coverage < 0.06 and green_ratio < 0.04 and exg_positive_ratio < 0.04 and amber_ratio < 0.08:
         return (
             False,
-            "No recognizable crop, leaf, or agricultural foliage was detected in this photo. "
-            "Please ensure the image clearly shows Tomato, Maize, or Pineapple plants.",
-            metrics
+            f"No recognizable crop foliage detected in this photo. Please ensure the image clearly shows {crop_display} plants.",
+            metrics,
         )
 
-    # Rule C: Completely flat / featureless texture (e.g. solid white/blank wall)
     if laplacian_var < 10.0:
         return (
             False,
             "The image is too blurry, dark, or featureless for agricultural diagnostic analysis.",
-            metrics
+            metrics,
         )
 
-    return True, "Valid agricultural image.", metrics
+    # ── Stage 2: Crop Species Cross-Validation ────────────────────────────────
+    classifier, transform, categories = _get_classifier()
+    if classifier and transform:
+        try:
+            pil_img = Image.open(image_path).convert("RGB")
+            tensor = transform(pil_img).unsqueeze(0)
+            with torch.no_grad():
+                output = classifier(tensor)
+                probs = torch.nn.functional.softmax(output[0], dim=0)
 
+            top_probs, top_indices = torch.topk(probs, 5)
+            predicted_labels = [categories[idx].lower().replace(" ", "_") for idx in top_indices]
+            top_scores = [float(p) for p in top_probs]
+
+            metrics["semantic_top_predictions"] = list(zip(predicted_labels[:3], top_scores[:3]))
+
+            # Check if clearly detected as another specific crop value chain
+            is_predicted_maize = any(any(k in lbl for k in CROP_SEMANTIC_KEYWORDS["maize"]) for lbl in predicted_labels[:3])
+            is_predicted_pineapple = any(any(k in lbl for k in CROP_SEMANTIC_KEYWORDS["pineapple"]) for lbl in predicted_labels[:3])
+            is_predicted_tomato = any(any(k in lbl for k in CROP_SEMANTIC_KEYWORDS["tomato"]) for lbl in predicted_labels[:3])
+
+            # Monocot (Maize) vs Dicot (Tomato) Venation Check:
+            # Maize leaves have high parallelism (> 0.28). Broad reticulate dicot leaves have lower parallelism (< 0.20)
+            venation = morphology["venation_parallelism"]
+
+            # If user selected MAIZE, but image is Tomato / Dicot
+            if crop_type == "maize":
+                if is_predicted_pineapple:
+                    return (
+                        False,
+                        f"Crop Mismatch: The uploaded image appears to be a Pineapple plant, but you selected a Maize farm. "
+                        f"Please upload Maize foliage or select your Pineapple farm plot.",
+                        metrics,
+                    )
+                # If broad lobed dicot tomato leaf uploaded with low venation parallelism and tomato semantics
+                if is_predicted_tomato and not is_predicted_maize and venation < 0.18:
+                    return (
+                        False,
+                        f"Crop Mismatch: The uploaded image appears to be a Tomato leaf, but you selected a Maize farm. "
+                        f"Please upload Maize crops or select your Tomato farm plot.",
+                        metrics,
+                    )
+
+            # If user selected TOMATO, but image is Maize / Pineapple
+            elif crop_type == "tomato":
+                if is_predicted_maize:
+                    return (
+                        False,
+                        f"Crop Mismatch: The uploaded image appears to be a Maize (corn) plant, but you selected a Tomato farm. "
+                        f"Please upload Tomato plants or select your Maize farm plot.",
+                        metrics,
+                    )
+                if is_predicted_pineapple:
+                    return (
+                        False,
+                        f"Crop Mismatch: The uploaded image appears to be a Pineapple plant, but you selected a Tomato farm. "
+                        f"Please upload Tomato foliage or select your Pineapple farm plot.",
+                        metrics,
+                    )
+
+            # If user selected PINEAPPLE, but image is Maize or Tomato
+            elif crop_type == "pineapple":
+                if is_predicted_maize:
+                    return (
+                        False,
+                        f"Crop Mismatch: The uploaded image appears to be a Maize plant, but you selected a Pineapple farm. "
+                        f"Please upload Pineapple plants or select your Pineapple farm plot.",
+                        metrics,
+                    )
+                if is_predicted_tomato:
+                    return (
+                        False,
+                        f"Crop Mismatch: The uploaded image appears to be a Tomato plant/leaf, but you selected a Pineapple farm. "
+                        f"Please upload Pineapple plants or select your Pineapple farm plot.",
+                        metrics,
+                    )
+
+        except Exception as exc:
+            print(f"[CropValidator] Semantic check error: {exc}")
+
+    return True, f"Valid {crop_display} crop image.", metrics
