@@ -19,3 +19,7 @@ class FarmViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         farmer_user = self.request.user if self.request.user.is_authenticated else None
+        if not farmer_user:
+            from users.models import User
+            farmer_user = User.objects.filter(user_role='farmer').first() or User.objects.first()
+        serializer.save(farmer=farmer_user)
