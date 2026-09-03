@@ -79,12 +79,15 @@ export const authAPI = {
 export const farmsAPI = {
   list: async (farmerId) => {
     const { data } = await http.get('/farms/');
-    if (farmerId && Array.isArray(data)) {
-      return data.filter(f => 
+    if (!Array.isArray(data)) return [];
+    if (farmerId) {
+      const filtered = data.filter(f => 
         String(f.farmer) === String(farmerId) || 
         String(f.farmer_id) === String(farmerId) ||
-        f.farmer === farmerId
+        f.farmer === farmerId ||
+        (f.farmer && typeof f.farmer === 'object' && String(f.farmer.id) === String(farmerId))
       );
+      return filtered.length > 0 ? filtered : data;
     }
     return data;
   },
