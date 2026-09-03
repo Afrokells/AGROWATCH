@@ -34,6 +34,12 @@ export default function Scans() {
           ]);
           const userFarmIds = new Set((userFarms || []).map(f => String(f.id)));
           const userScans = (allScans || []).filter(s => 
+            userFarmIds.has(String(s.farm)) || 
+            userFarmIds.has(String(s.farm_id)) ||
+            (s.farm && typeof s.farm === 'object' && userFarmIds.has(String(s.farm.id)))
+          );
+          
+          // Sort by date descending
           const sorted = [...userScans].sort((a, b) => new Date(b.scan_date || b.created_at) - new Date(a.scan_date || a.created_at));
           setScans(sorted);
         }
@@ -218,7 +224,7 @@ export default function Scans() {
               cursor: 'pointer'
             }}
           >
-            <option value="all">📅 All Time (All Records)</option>
+            <option value="all">All Time (All Records)</option>
             <option value="7d">Last 7 Days</option>
             <option value="30d">Last 30 Days</option>
             <option value="90d">Last 3 Months</option>
@@ -239,9 +245,9 @@ export default function Scans() {
               cursor: 'pointer'
             }}
           >
-            <option value="all">🔍 All Statuses</option>
-            <option value="diseased">⚠️ Issues Detected Only</option>
-            <option value="healthy">✅ Healthy Plots Only</option>
+            <option value="all">All Statuses</option>
+            <option value="diseased">Issues Detected Only</option>
+            <option value="healthy">Healthy Plots Only</option>
           </select>
 
           {/* Crop Buttons */}
