@@ -69,6 +69,12 @@ export const farmsAPI = {
     const { data } = await http.get('/farms/');
     if (farmerId && Array.isArray(data)) {
       return data.filter(f => 
+        String(f.farmer) === String(farmerId) || 
+        String(f.farmer_id) === String(farmerId) ||
+        f.farmer === farmerId
+      );
+    }
+    return data;
   },
   create: async (payload) => {
     const { data } = await http.post('/farms/', payload);
