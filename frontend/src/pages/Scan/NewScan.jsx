@@ -1,12 +1,31 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { UploadCloud, Image as ImageIcon, X, AlertCircle, Layers, Sparkles, CheckCircle2 } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, X, AlertCircle, Layers, Sparkles, CheckCircle2, Camera as CameraIcon } from 'lucide-react';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { farmsAPI, scansAPI } from '../../services/api';
 import Select from '../../components/UI/Select';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
+
+// ---------- Capacitor native camera helpers ----------
+// Capacitor sets window.Capacitor when running inside a native shell.
+// This check is synchronous and safe in all environments.
+const isNativePlatform = Capacitor.isNativePlatform();
+
+/** Convert a base64 data URI to a File object so the existing FormData flow is unchanged. */
+function dataUriToFile(dataUri, fileName) {
+  const [header, b64] = dataUri.split(',');
+  const mimeMatch = header.match(/:(.*?);/);
+  const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new File([bytes], fileName, { type: mime });
+}
+
 
 export default function NewScan() {
   const { user } = useAuth();
@@ -50,7 +69,55 @@ export default function NewScan() {
     }
   };
 
+  /** Open device camera and capture a photo (native Android only) */
+  const takeCameraPhoto = async () => {
+    if (!isNativePlatform) return;
+    try {
+      const photo = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
+      if (photo.dataUrl) {
+        const file = dataUriToFile(photo.dataUrl, `crop_photo_${Date.now()}.jpg`);
+        setFiles(prev => [...prev, file]);
+      }
+    } catch (err) {
+      if (err?.message !== 'User cancelled photos app') {
+        addToast('Could not open camera. Please check camera permissions.', 'error');
+      }
+    }
+  };
+
+  /** Open device photo gallery and pick one or more images (native Android only) */
+  const pickFromGallery = async () => {
+    if (!isNativePlatform) return;
+    try {
+      const result = await Camera.pickImages({
+        quality: 90,
+        limit: 10,
+      });
+      if (result?.photos?.length) {
+        const newFiles = await Promise.all(
+          result.photos.map(async (photo, idx) => {
+            // pickImages returns webPath; fetch it as a blob to get a File
+            const resp = await fetch(photo.webPath);
+            const blob = await resp.blob();
+            return new File([blob], `gallery_photo_${Date.now()}_${idx}.jpg`, { type: blob.type || 'image/jpeg' });
+          })
+        );
+        setFiles(prev => [...prev, ...newFiles]);
+      }
+    } catch (err) {
+      if (err?.message !== 'User cancelled photos app') {
+        addToast('Could not open gallery. Please check storage permissions.', 'error');
+      }
+    }
+  };
+
   const removeFile = (index) => {
+
     setFiles(files.filter((_, i) => i !== index));
   };
 
@@ -179,44 +246,94 @@ export default function NewScan() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-2)' }}>
               <label style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                Upload Crop Images (Single or Multi-Scan Batch)
+                {isNativePlatform ? 'Capture Crop Images' : 'Upload Crop Images (Single or Multi-Scan Batch)'}
               </label>
               {files.length > 0 && (
                 <span style={{ fontSize: '0.8125rem', color: 'var(--accent)', fontWeight: 600 }}>
-                  {files.length} file{files.length > 1 ? 's' : ''} selected
+                  {files.length} image{files.length > 1 ? 's' : ''} selected
                 </span>
               )}
             </div>
 
-            <div style={{
-              border: '2px dashed var(--border)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--sp-8)',
-              textAlign: 'center',
-              background: 'rgba(255,255,255,0.02)',
-              position: 'relative',
-              transition: 'all 0.2s ease',
-              opacity: isScanning ? 0.5 : 1,
-              pointerEvents: isScanning ? 'none' : 'auto'
-            }}>
-              <input 
-                type="file" 
-                multiple 
-                accept="image/*"
-                onChange={handleFileChange}
-                style={{
-                  position: 'absolute', inset: 0, width: '100%', height: '100%',
-                  opacity: 0, cursor: 'pointer'
-                }}
-              />
-              <UploadCloud size={48} style={{ color: 'var(--accent)', margin: '0 auto var(--sp-4)' }} />
-              <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-2)' }}>
-                Click or drag 1 or more images here
-              </h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                Supports JPG, PNG, WebP (Upload multiple photos to run batch scans at a go)
-              </p>
-            </div>
+            {isNativePlatform ? (
+              /* ── Native Android camera buttons ── */
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 'var(--sp-3)',
+                opacity: isScanning ? 0.5 : 1,
+                pointerEvents: isScanning ? 'none' : 'auto'
+              }}>
+                <button
+                  id="btn-take-photo"
+                  onClick={takeCameraPhoto}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                    padding: 'var(--sp-5)',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '2px solid var(--accent)',
+                    background: 'var(--accent-dim)',
+                    color: 'var(--accent)',
+                    fontSize: '1rem', fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <CameraIcon size={26} />
+                  Take Photo
+                </button>
+
+                <button
+                  id="btn-gallery-photo"
+                  onClick={pickFromGallery}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                    padding: 'var(--sp-4)',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1.5px solid var(--border)',
+                    background: 'transparent',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.9rem', fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <ImageIcon size={20} />
+                  Choose from Gallery
+                </button>
+              </div>
+            ) : (
+              /* ── Web / desktop file input ── */
+              <div style={{
+                border: '2px dashed var(--border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--sp-8)',
+                textAlign: 'center',
+                background: 'rgba(255,255,255,0.02)',
+                position: 'relative',
+                transition: 'all 0.2s ease',
+                opacity: isScanning ? 0.5 : 1,
+                pointerEvents: isScanning ? 'none' : 'auto'
+              }}>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{
+                    position: 'absolute', inset: 0, width: '100%', height: '100%',
+                    opacity: 0, cursor: 'pointer'
+                  }}
+                />
+                <UploadCloud size={48} style={{ color: 'var(--accent)', margin: '0 auto var(--sp-4)' }} />
+                <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-2)' }}>
+                  Click or drag 1 or more images here
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                  Supports JPG, PNG, WebP (Upload multiple photos to run batch scans at a go)
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Batch Mode Options (Shown when 2+ files selected) */}

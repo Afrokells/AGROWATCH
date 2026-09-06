@@ -1,0 +1,18 @@
+{
+  "appId": "agrowatch.app.com",
+  "appName": "AgroWatch",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "url": "https://YOUR-APP.onrender.com",
+    "cleartext": false
+  },
+  "android": {
+    "backgroundColor": "#f6f7f2"
+  },
+  "plugins": {
+    "Camera": {
+      "presentationStyle": "fullscreen"
+    }
+  }
+}
