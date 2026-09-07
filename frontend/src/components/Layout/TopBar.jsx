@@ -63,6 +63,13 @@ export default function TopBar({ onMenuClick }) {
     <header 
       className="topbar"
       style={{
+        background: 'var(--bg-base)',
+        opacity: 0.9,
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid var(--border)',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 var(--container-px)',
         gap: 'var(--sp-4)',
       }}
     >
