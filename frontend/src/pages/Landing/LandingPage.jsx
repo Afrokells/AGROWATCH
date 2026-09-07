@@ -128,10 +128,10 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="landing-hero">
         <div className="container grid-hero">
-          <div className="animate-fade-in" style={{ textAlign: 'left' }}>
+          <div className="hero-intro animate-fade-in">
             <Badge label="SMART AGRICULTURAL SYSTEM" variant="accent" style={{ marginBottom: 'var(--sp-6)' }} />
             <h1 style={{ 
-              fontSize: 'clamp(2rem, 4vw, 3.5rem)', 
+              fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', 
               lineHeight: 1.15,
               marginBottom: 'var(--sp-6)', 
               fontWeight: 800,
@@ -140,16 +140,16 @@ export default function LandingPage() {
             }}>
               An Integrated <span className="gradient-text">Multi-Crop Monitoring</span>, Pest & Disease Detection, and Market Linkage System
             </h1>
-            <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', marginBottom: 'var(--sp-10)', lineHeight: 1.6, maxWidth: 580 }}>
+            <p style={{ fontSize: 'clamp(1rem, 2vw, 1.15rem)', color: 'var(--text-secondary)', marginBottom: 'var(--sp-8)', lineHeight: 1.6, maxWidth: 580 }}>
               An AI-powered platform designed to detect plant diseases early, provide treatment recommendations, and connect farmers directly with buyers for Tomato, Maize, and Pineapple.
             </p>
-            <div style={{ display: 'flex', gap: 'var(--sp-4)' }}>
+            <div className="hero-actions">
               <Link to="/register">
                 <Button size="lg" iconRight={<ArrowRight size={20} />}>Start Monitoring Now</Button>
               </Link>
             </div>
             
-            <div style={{ marginTop: 'var(--sp-12)', display: 'flex', gap: 'var(--sp-8)', flexWrap: 'wrap' }}>
+            <div className="hero-stats-strip">
               <Stat label="Target Crops" value="3" />
               <Stat label="Model Accuracy" value="98%" />
               <Stat label="Detectable Conditions" value="12+" />
@@ -157,55 +157,50 @@ export default function LandingPage() {
           </div>
 
           {/* Visual Showcase: Agricultural Drone & Multi-Crop AI HUD */}
-          <div className="animate-float" style={{ position: 'relative' }}>
-            {/* Ambient Backlight Glow */}
-            <div style={{ 
-              position: 'absolute', inset: '-24px', 
-              background: 'radial-gradient(circle, rgba(34, 197, 94, 0.28) 0%, rgba(217, 119, 6, 0.18) 50%, transparent 75%)', 
-              borderRadius: 'var(--radius-xl)', 
-              filter: 'blur(32px)',
-              zIndex: 0 
-            }} />
-
+          <div className="animate-float" style={{ position: 'relative', width: '100%', maxWidth: '100%' }}>
             <div className="glass-strong" style={{ 
               position: 'relative', 
               borderRadius: 'var(--radius-xl)', 
               border: '1px solid var(--border)', 
-              boxShadow: '0 24px 60px rgba(0,0,0,0.3)',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.25), 0 0 32px rgba(34, 197, 94, 0.12)',
               overflow: 'hidden',
               background: 'linear-gradient(145deg, var(--bg-surface), var(--bg-card))',
               display: 'flex',
               flexDirection: 'column',
+              width: '100%',
+              boxSizing: 'border-box',
               zIndex: 1
             }}>
               {/* Tab Selector Header */}
               <div style={{ 
-                display: 'flex', 
-                gap: '6px', 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                gap: '4px', 
                 background: 'var(--bg-base)', 
-                padding: '6px', 
+                padding: '4px', 
                 borderBottom: '1px solid var(--border)',
-                overflowX: 'auto',
-                scrollbarWidth: 'none'
+                width: '100%',
+                boxSizing: 'border-box'
               }}>
                 {[
-                  { id: 'drone', label: 'Drone Flight', icon: <Scan size={14} /> },
-                  { id: 'tomato', label: 'Tomato', icon: <Apple size={14} /> },
-                  { id: 'maize', label: 'Maize', icon: <Wheat size={14} /> },
-                  { id: 'pineapple', label: 'Pineapple', icon: <Citrus size={14} /> },
+                  { id: 'drone', label: 'Drone Flight', icon: <Scan size={13} /> },
+                  { id: 'tomato', label: 'Tomato', icon: <Apple size={13} /> },
+                  { id: 'maize', label: 'Maize', icon: <Wheat size={13} /> },
+                  { id: 'pineapple', label: 'Pineapple', icon: <Citrus size={13} /> },
                 ].map(tab => (
                   <button 
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     style={{
-                      flex: 1, padding: '8px 10px', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer',
-                      fontSize: '0.8rem', fontWeight: 700, transition: 'all 0.2s ease', whiteSpace: 'nowrap',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                      padding: '7px 4px', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer',
+                      fontSize: 'clamp(0.68rem, 1.8vw, 0.78rem)', fontWeight: 700, transition: 'all 0.2s ease', 
+                      whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', minWidth: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                       background: activeTab === tab.id ? 'var(--accent)' : 'transparent',
                       color: activeTab === tab.id ? '#0a1410' : 'var(--text-secondary)'
                     }}
                   >
-                    {tab.icon} {tab.label}
+                    {tab.icon} <span>{tab.label}</span>
                   </button>
                 ))}
               </div>

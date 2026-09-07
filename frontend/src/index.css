@@ -554,8 +554,61 @@ select.form-input option {
 
 .landing-hero {
   position: relative;
+  width: 100%;
+  overflow-x: hidden;
   padding: calc(clamp(110px, 14vh, 160px) + var(--sat)) 0 clamp(60px, 10vh, 120px);
   background: radial-gradient(circle at top right, var(--accent-dim), transparent 50%), radial-gradient(circle at bottom left, var(--amber-dim), transparent 50%);
+}
+
+.hero-intro {
+  text-align: left;
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--sp-4);
+}
+
+.hero-stats-strip {
+  margin-top: var(--sp-10);
+  display: flex;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .hero-intro {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-intro h1,
+  .hero-intro p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-actions {
+    justify-content: center;
+    width: 100%;
+  }
+  .hero-actions a {
+    width: min(100%, 340px);
+  }
+  .hero-actions a button {
+    width: 100%;
+    justify-content: center;
+  }
+  .hero-stats-strip {
+    width: 100%;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: var(--sp-3) !important;
+    text-align: center;
+  }
 }
 
 @media (max-width: 768px) {
