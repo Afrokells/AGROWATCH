@@ -66,5 +66,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>AgroWatch needs camera access to capture crop leaves and field foliage for AI health diagnosis.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AgroWatch needs photo library access to upload drone imagery and crop photos for analysis.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>AgroWatch needs permission to save scan diagnosis reports and captured crop photos.</string>
 </dict>
 </plist>
