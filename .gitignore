@@ -157,7 +157,12 @@ cython_debug/
 # VS Code
 .vscode/
 
-# Frontend
+# Frontend & Mobile
 frontend/node_modules/
 frontend/dist/
 frontend/.env
+*.properties
+!gradle.properties
+!gradle-wrapper.properties
+local.properties
+.gradle/
