@@ -64,16 +64,7 @@ export default function LandingPage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)', overflowX: 'hidden' }}>
       {/* Navbar */}
-      <nav style={{ 
-        position: 'fixed',
-        top: 0, left: 0, right: 0,
-        zIndex: 100,
-        background: 'var(--bg-base)',
-        opacity: 0.95,
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid var(--border)',
-        padding: 'var(--sp-4) 0'
-      }}>
+      <nav className="landing-nav">
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Link to="/" aria-label="Go to AgroWatch home" style={{ display: 'inline-flex' }}>
             <Logo size={40} iconSize={24} />
@@ -101,11 +92,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section style={{ 
-        position: 'relative', 
-        padding: 'clamp(120px, 15vh, 180px) 0 clamp(60px, 10vh, 120px)', 
-        background: 'radial-gradient(circle at top right, var(--accent-dim), transparent 50%), radial-gradient(circle at bottom left, var(--amber-dim), transparent 50%)'
-      }}>
+      <section className="landing-hero">
         <div className="container grid-hero">
           <div className="animate-fade-in" style={{ textAlign: 'left' }}>
             <Badge label="SMART AGRICULTURAL SYSTEM" variant="accent" style={{ marginBottom: 'var(--sp-6)' }} />

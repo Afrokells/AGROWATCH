@@ -2,6 +2,12 @@
 
 /* ─── CSS Custom Properties ─────────────────────────────────────────── */
 :root {
+  /* Safe Area Insets */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+
   /* Default / Light Theme */
   --bg-base:       #f9fbf9;
   --bg-surface:    #ffffff;
@@ -50,7 +56,8 @@
   --shadow-lg:  0 8px 32px rgba(0,0,0,0.1);
   --shadow-glow:0 0 24px rgba(34, 197, 94, 0.15);
   --sidebar-w: 260px;
-  --topbar-h:  64px;
+  --topbar-base-h: 64px;
+  --topbar-h:  calc(var(--topbar-base-h) + var(--sat));
   --ease: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -489,10 +496,16 @@ select.form-input option {
   left: 0;
   width: 260px;
   height: 100vh;
+  height: 100dvh;
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  padding-left: var(--sal);
   background: var(--bg-surface);
   border-right: 1px solid var(--border);
   z-index: 100;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
 }
 
 .topbar {
@@ -501,8 +514,39 @@ select.form-input option {
   left: var(--sidebar-w);
   right: 0;
   height: var(--topbar-h);
+  padding-top: var(--sat);
+  padding-left: calc(var(--container-px) + var(--sal));
+  padding-right: calc(var(--container-px) + var(--sar));
   z-index: 90;
   transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  background: var(--bg-base);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg-base);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding-top: calc(var(--sp-3) + var(--sat));
+  padding-bottom: var(--sp-3);
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+.landing-hero {
+  position: relative;
+  padding: calc(clamp(110px, 14vh, 160px) + var(--sat)) 0 clamp(60px, 10vh, 120px);
+  background: radial-gradient(circle at top right, var(--accent-dim), transparent 50%), radial-gradient(circle at bottom left, var(--amber-dim), transparent 50%);
 }
 
 @media (max-width: 768px) {
@@ -630,7 +674,23 @@ select.form-input option {
   display: none;
 }
 
-/* Register Page */
+/* ─── Auth Pages ─────────────────────────────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-6);
+  padding-top: calc(var(--sp-6) + var(--sat));
+  padding-bottom: calc(var(--sp-6) + var(--sab));
+  padding-left: calc(var(--sp-6) + var(--sal));
+  padding-right: calc(var(--sp-6) + var(--sar));
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
 .register-page {
   min-height: 100vh;
   min-height: 100dvh;
@@ -638,6 +698,10 @@ select.form-input option {
   align-items: center;
   justify-content: center;
   padding: clamp(var(--sp-4), 4vw, var(--sp-8));
+  padding-top: calc(clamp(var(--sp-4), 4vw, var(--sp-8)) + var(--sat));
+  padding-bottom: calc(clamp(var(--sp-4), 4vw, var(--sp-8)) + var(--sab));
+  padding-left: calc(clamp(var(--sp-4), 4vw, var(--sp-8)) + var(--sal));
+  padding-right: calc(clamp(var(--sp-4), 4vw, var(--sp-8)) + var(--sar));
   position: relative;
   overflow-x: hidden;
   background: var(--bg-base);
