@@ -1,0 +1,8 @@
+{
+  "appId": "com.agrowatch.app",
+  "appName": "AgroWatch",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
