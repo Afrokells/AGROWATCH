@@ -28,7 +28,7 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = "AgroWatch-${variant.buildType.name}.apk"
+            outputFileName = "AgroWatch.apk"
         }
     }
 }
