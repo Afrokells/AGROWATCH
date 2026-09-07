@@ -1,14 +1,9 @@
 {
-<<<<<<< HEAD
   "appId": "agrowatch.app.com",
-=======
-  "appId": "com.agrowatch.app",
->>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
   "appName": "AgroWatch",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"
-<<<<<<< HEAD
   },
   "android": {
     "backgroundColor": "#f6f7f2"
@@ -19,8 +14,3 @@
     }
   }
 }
-=======
-  }
-}
-
->>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f

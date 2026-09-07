@@ -1,20 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-<<<<<<< HEAD
-import { UploadCloud, Image as ImageIcon, X, AlertCircle, Layers, Sparkles, CheckCircle2, Camera as CameraIcon } from 'lucide-react';
-=======
 import { 
   UploadCloud, Image as ImageIcon, X, AlertCircle, Layers, Sparkles, 
-  CheckCircle2, Camera, RefreshCw, FlipHorizontal, Eye, ShieldCheck 
+  CheckCircle2, Camera as CameraIcon, RefreshCw, FlipHorizontal, Eye, ShieldCheck 
 } from 'lucide-react';
->>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { farmsAPI, scansAPI } from '../../services/api';
 import Select from '../../components/UI/Select';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Camera as CapCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 
 // ---------- Capacitor native camera helpers ----------
@@ -79,7 +75,7 @@ export default function NewScan() {
     if (user) loadFarms();
   }, [user, preselectedFarmId]);
 
-  // ── Camera Stream Lifecycle ───────────────────────────────────────────────
+  // ── Camera Stream Lifecycle (Web Viewfinder) ───────────────────────────────
   const startCamera = async (facing = facingMode) => {
     setCameraError(null);
     stopCamera();
@@ -135,7 +131,7 @@ export default function NewScan() {
   };
 
   useEffect(() => {
-    if (inputTab === 'camera') {
+    if (!isNativePlatform && inputTab === 'camera') {
       startCamera(facingMode);
     } else {
       stopCamera();
@@ -178,7 +174,7 @@ export default function NewScan() {
   const takeCameraPhoto = async () => {
     if (!isNativePlatform) return;
     try {
-      const photo = await Camera.getPhoto({
+      const photo = await CapCamera.getPhoto({
         quality: 90,
         allowEditing: false,
         resultType: CameraResultType.DataUrl,
@@ -199,14 +195,13 @@ export default function NewScan() {
   const pickFromGallery = async () => {
     if (!isNativePlatform) return;
     try {
-      const result = await Camera.pickImages({
+      const result = await CapCamera.pickImages({
         quality: 90,
         limit: 10,
       });
       if (result?.photos?.length) {
         const newFiles = await Promise.all(
           result.photos.map(async (photo, idx) => {
-            // pickImages returns webPath; fetch it as a blob to get a File
             const resp = await fetch(photo.webPath);
             const blob = await resp.blob();
             return new File([blob], `gallery_photo_${Date.now()}_${idx}.jpg`, { type: blob.type || 'image/jpeg' });
@@ -222,7 +217,6 @@ export default function NewScan() {
   };
 
   const removeFile = (index) => {
-
     setFiles(files.filter((_, i) => i !== index));
   };
 
@@ -348,22 +342,10 @@ export default function NewScan() {
             />
           </div>
 
-          {/* Input Source Toggle Tabs */}
+          {/* Input Source Area */}
           <div>
-<<<<<<< HEAD
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-2)' }}>
-              <label style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                {isNativePlatform ? 'Capture Crop Images' : 'Upload Crop Images (Single or Multi-Scan Batch)'}
-              </label>
-              {files.length > 0 && (
-                <span style={{ fontSize: '0.8125rem', color: 'var(--accent)', fontWeight: 600 }}>
-                  {files.length} image{files.length > 1 ? 's' : ''} selected
-                </span>
-              )}
-            </div>
-
             {isNativePlatform ? (
-              /* ── Native Android camera buttons ── */
+              /* ── Native Android camera & gallery buttons ── */
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -410,240 +392,232 @@ export default function NewScan() {
                 </button>
               </div>
             ) : (
-              /* ── Web / desktop file input ── */
-=======
-            <div style={{ display: 'flex', gap: 'var(--sp-3)', marginBottom: 'var(--sp-4)' }}>
-              <button
-                type="button"
-                onClick={() => setInputTab('upload')}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  padding: '10px 16px',
-                  borderRadius: 'var(--radius-md)',
-                  background: inputTab === 'upload' ? 'var(--accent)' : 'var(--bg-input)',
-                  color: inputTab === 'upload' ? '#0a1410' : 'var(--text-secondary)',
-                  border: `1px solid ${inputTab === 'upload' ? 'var(--accent)' : 'var(--border)'}`,
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <UploadCloud size={18} /> Upload Drone / Gallery Photos
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setInputTab('camera')}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  padding: '10px 16px',
-                  borderRadius: 'var(--radius-md)',
-                  background: inputTab === 'camera' ? 'var(--accent)' : 'var(--bg-input)',
-                  color: inputTab === 'camera' ? '#0a1410' : 'var(--text-secondary)',
-                  border: `1px solid ${inputTab === 'camera' ? 'var(--accent)' : 'var(--border)'}`,
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Camera size={18} /> Live Camera Capture
-              </button>
-            </div>
-
-            {/* TAB 1: File / Drone Upload Area */}
-            {inputTab === 'upload' && (
->>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
-              <div style={{
-                border: '2px dashed var(--border)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--sp-8)',
-                textAlign: 'center',
-                background: 'rgba(255,255,255,0.02)',
-                position: 'relative',
-                transition: 'all 0.2s ease',
-                opacity: isScanning ? 0.5 : 1,
-                pointerEvents: isScanning ? 'none' : 'auto'
-              }}>
-<<<<<<< HEAD
-                <input
-                  type="file"
-                  multiple
-=======
-                <input 
-                  type="file" 
-                  multiple 
->>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  style={{
-                    position: 'absolute', inset: 0, width: '100%', height: '100%',
-                    opacity: 0, cursor: 'pointer'
-                  }}
-                />
-                <UploadCloud size={48} style={{ color: 'var(--accent)', margin: '0 auto var(--sp-4)' }} />
-                <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-2)' }}>
-                  Click or drag 1 or more images here
-                </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                  Supports JPG, PNG, WebP (Upload multiple photos to run batch scans at a go)
-                </p>
-              </div>
-            )}
-<<<<<<< HEAD
-=======
-
-            {/* TAB 2: Live Camera Viewfinder & Controls */}
-            {inputTab === 'camera' && (
-              <div style={{
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-lg)',
-                overflow: 'hidden',
-                background: '#000',
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center'
-              }}>
-                {cameraError ? (
-                  <div style={{ padding: 'var(--sp-8)', textAlign: 'center', color: 'var(--danger)' }}>
-                    <AlertCircle size={40} style={{ margin: '0 auto var(--sp-3)' }} />
-                    <p style={{ fontWeight: 600, marginBottom: 'var(--sp-4)' }}>{cameraError}</p>
-                    
-                    {/* Fallback Native Camera Trigger */}
-                    <div style={{ display: 'flex', gap: 'var(--sp-3)', justifyContent: 'center' }}>
-                      <Button variant="secondary" onClick={() => startCamera(facingMode)} icon={<RefreshCw size={16} />}>
-                        Retry Camera
-                      </Button>
-                      
-                      <Button 
-                        variant="primary" 
-                        onClick={() => nativeCameraInputRef.current?.click()}
-                        icon={<Camera size={16} />}
-                      >
-                        Open Device Camera
-                      </Button>
-                      <input 
-                        type="file" 
-                        ref={nativeCameraInputRef}
-                        accept="image/*"
-                        capture="environment"
-                        onChange={handleFileChange}
-                        style={{ display: 'none' }}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {/* Live Video Element */}
-                    <div style={{ position: 'relative', width: '100%', maxHeight: 440, background: '#050a08', display: 'flex', justifyContent: 'center' }}>
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        style={{ width: '100%', maxHeight: 440, objectFit: 'contain' }}
-                      />
-
-                      {/* Plant Alignment Target Frame */}
-                      <div style={{
-                        position: 'absolute',
-                        inset: '12%',
-                        border: '2px dashed rgba(16, 185, 129, 0.6)',
-                        borderRadius: 'var(--radius-lg)',
-                        pointerEvents: 'none',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        padding: 12
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <div style={{ width: 16, height: 16, borderTop: '3px solid var(--accent)', borderLeft: '3px solid var(--accent)' }} />
-                          <div style={{ width: 16, height: 16, borderTop: '3px solid var(--accent)', borderRight: '3px solid var(--accent)' }} />
-                        </div>
-                        <div style={{ textAlign: 'center', color: '#fff', fontSize: '0.75rem', textShadow: '0 1px 4px rgba(0,0,0,0.8)', background: 'rgba(0,0,0,0.4)', padding: '4px 8px', borderRadius: 4, margin: '0 auto' }}>
-                          Align crop leaf or field foliage within frame
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <div style={{ width: 16, height: 16, borderBottom: '3px solid var(--accent)', borderLeft: '3px solid var(--accent)' }} />
-                          <div style={{ width: 16, height: 16, borderBottom: '3px solid var(--accent)', borderRight: '3px solid var(--accent)' }} />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Camera Control Bar */}
-                    <div style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'rgba(10, 20, 16, 0.95)',
-                      borderTop: '1px solid var(--border)',
+              /* ── Web / Desktop: Upload or Live Camera Stream ── */
+              <>
+                <div style={{ display: 'flex', gap: 'var(--sp-3)', marginBottom: 'var(--sp-4)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setInputTab('upload')}
+                    style={{
+                      flex: 1,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'space-between'
-                    }}>
-                      <button
-                        type="button"
-                        onClick={toggleCameraFacing}
-                        title="Flip Camera (Front/Rear)"
-                        style={{
-                          background: 'var(--bg-input)',
-                          border: '1px solid var(--border)',
-                          borderRadius: 'var(--radius-full)',
-                          padding: '8px 12px',
-                          color: 'var(--text-secondary)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          fontSize: '0.8125rem',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <FlipHorizontal size={16} /> Flip
-                      </button>
+                      justifyContent: 'center',
+                      gap: 8,
+                      padding: '10px 16px',
+                      borderRadius: 'var(--radius-md)',
+                      background: inputTab === 'upload' ? 'var(--accent)' : 'var(--bg-input)',
+                      color: inputTab === 'upload' ? '#0a1410' : 'var(--text-secondary)',
+                      border: `1px solid ${inputTab === 'upload' ? 'var(--accent)' : 'var(--border)'}`,
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <UploadCloud size={18} /> Upload Drone / Gallery Photos
+                  </button>
 
-                      {/* Large Snap Shutter Button */}
-                      <button
-                        type="button"
-                        onClick={capturePhoto}
-                        style={{
-                          width: 58,
-                          height: 58,
-                          borderRadius: '50%',
-                          background: 'var(--accent)',
-                          border: '4px solid rgba(255,255,255,0.8)',
-                          color: '#0a1410',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          boxShadow: '0 0 16px rgba(16, 185, 129, 0.5)',
-                          transition: 'transform 0.1s ease'
-                        }}
-                        onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.92)'}
-                        onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        title="Capture Photo"
-                      >
-                        <Camera size={26} />
-                      </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputTab('camera')}
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      padding: '10px 16px',
+                      borderRadius: 'var(--radius-md)',
+                      background: inputTab === 'camera' ? 'var(--accent)' : 'var(--bg-input)',
+                      color: inputTab === 'camera' ? '#0a1410' : 'var(--text-secondary)',
+                      border: `1px solid ${inputTab === 'camera' ? 'var(--accent)' : 'var(--border)'}`,
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <CameraIcon size={18} /> Live Camera Capture
+                  </button>
+                </div>
 
-                      <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                        {files.length} snapped
-                      </div>
-                    </div>
-                  </>
+                {/* TAB 1: File / Drone Upload Area */}
+                {inputTab === 'upload' && (
+                  <div style={{
+                    border: '2px dashed var(--border)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: 'var(--sp-8)',
+                    textAlign: 'center',
+                    background: 'rgba(255,255,255,0.02)',
+                    position: 'relative',
+                    transition: 'all 0.2s ease',
+                    opacity: isScanning ? 0.5 : 1,
+                    pointerEvents: isScanning ? 'none' : 'auto'
+                  }}>
+                    <input 
+                      type="file" 
+                      multiple 
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{
+                        position: 'absolute', inset: 0, width: '100%', height: '100%',
+                        opacity: 0, cursor: 'pointer'
+                      }}
+                    />
+                    <UploadCloud size={48} style={{ color: 'var(--accent)', margin: '0 auto var(--sp-4)' }} />
+                    <h3 style={{ fontSize: '1.125rem', marginBottom: 'var(--sp-2)' }}>
+                      Click or drag 1 or more images here
+                    </h3>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                      Supports JPG, PNG, WebP (Upload multiple photos to run batch scans at a go)
+                    </p>
+                  </div>
                 )}
-              </div>
+
+                {/* TAB 2: Live Camera Viewfinder & Controls */}
+                {inputTab === 'camera' && (
+                  <div style={{
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-lg)',
+                    overflow: 'hidden',
+                    background: '#000',
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                  }}>
+                    {cameraError ? (
+                      <div style={{ padding: 'var(--sp-8)', textAlign: 'center', color: 'var(--danger)' }}>
+                        <AlertCircle size={40} style={{ margin: '0 auto var(--sp-3)' }} />
+                        <p style={{ fontWeight: 600, marginBottom: 'var(--sp-4)' }}>{cameraError}</p>
+                        
+                        {/* Fallback Native Camera Trigger */}
+                        <div style={{ display: 'flex', gap: 'var(--sp-3)', justifyContent: 'center' }}>
+                          <Button variant="secondary" onClick={() => startCamera(facingMode)} icon={<RefreshCw size={16} />}>
+                            Retry Camera
+                          </Button>
+                          
+                          <Button 
+                            variant="primary" 
+                            onClick={() => nativeCameraInputRef.current?.click()}
+                            icon={<CameraIcon size={16} />}
+                          >
+                            Open Device Camera
+                          </Button>
+                          <input 
+                            type="file" 
+                            ref={nativeCameraInputRef}
+                            accept="image/*"
+                            capture="environment"
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Live Video Element */}
+                        <div style={{ position: 'relative', width: '100%', maxHeight: 440, background: '#050a08', display: 'flex', justifyContent: 'center' }}>
+                          <video
+                            ref={videoRef}
+                            autoPlay
+                            playsInline
+                            muted
+                            style={{ width: '100%', maxHeight: 440, objectFit: 'contain' }}
+                          />
+
+                          {/* Plant Alignment Target Frame */}
+                          <div style={{
+                            position: 'absolute',
+                            inset: '12%',
+                            border: '2px dashed rgba(16, 185, 129, 0.6)',
+                            borderRadius: 'var(--radius-lg)',
+                            pointerEvents: 'none',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: 12
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <div style={{ width: 16, height: 16, borderTop: '3px solid var(--accent)', borderLeft: '3px solid var(--accent)' }} />
+                              <div style={{ width: 16, height: 16, borderTop: '3px solid var(--accent)', borderRight: '3px solid var(--accent)' }} />
+                            </div>
+                            <div style={{ textAlign: 'center', color: '#fff', fontSize: '0.75rem', textShadow: '0 1px 4px rgba(0,0,0,0.8)', background: 'rgba(0,0,0,0.4)', padding: '4px 8px', borderRadius: 4, margin: '0 auto' }}>
+                              Align crop leaf or field foliage within frame
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <div style={{ width: 16, height: 16, borderBottom: '3px solid var(--accent)', borderLeft: '3px solid var(--accent)' }} />
+                              <div style={{ width: 16, height: 16, borderBottom: '3px solid var(--accent)', borderRight: '3px solid var(--accent)' }} />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Camera Control Bar */}
+                        <div style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(10, 20, 16, 0.95)',
+                          borderTop: '1px solid var(--border)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}>
+                          <button
+                            type="button"
+                            onClick={toggleCameraFacing}
+                            title="Flip Camera (Front/Rear)"
+                            style={{
+                              background: 'var(--bg-input)',
+                              border: '1px solid var(--border)',
+                              borderRadius: 'var(--radius-full)',
+                              padding: '8px 12px',
+                              color: 'var(--text-secondary)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              fontSize: '0.8125rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <FlipHorizontal size={16} /> Flip
+                          </button>
+
+                          {/* Large Snap Shutter Button */}
+                          <button
+                            type="button"
+                            onClick={capturePhoto}
+                            style={{
+                              width: 58,
+                              height: 58,
+                              borderRadius: '50%',
+                              background: 'var(--accent)',
+                              border: '4px solid rgba(255,255,255,0.8)',
+                              color: '#0a1410',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              boxShadow: '0 0 16px rgba(16, 185, 129, 0.5)',
+                              transition: 'transform 0.1s ease'
+                            }}
+                            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.92)'}
+                            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            title="Capture Photo"
+                          >
+                            <CameraIcon size={26} />
+                          </button>
+
+                          <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                            {files.length} snapped
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
             )}
->>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
           </div>
 
           {/* Batch Mode Options (Shown when 2+ files selected) */}
