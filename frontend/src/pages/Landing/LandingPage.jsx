@@ -101,21 +101,12 @@ export default function LandingPage() {
   const currentFeed = heroFeeds[activeFeed];
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-base)', overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-base)', overflowX: 'hidden', width: '100%', maxWidth: '100vw' }}>
       {/* Navbar */}
-      <nav className="landing-nav" style={{ 
-        position: 'fixed',
-        top: 0, left: 0, right: 0,
-        zIndex: 100,
-        background: 'var(--bg-base)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: '1px solid var(--border)',
-        padding: 'calc(var(--sp-4) + var(--sat)) calc(var(--sp-4) + var(--sar)) var(--sp-4) calc(var(--sp-4) + var(--sal))'
-      }}>
+      <nav className="landing-nav">
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link to="/" aria-label="Go to AgroWatch home" style={{ display: 'inline-flex' }}>
-            <Logo size={40} iconSize={24} />
+          <Link to="/" aria-label="Go to AgroWatch home" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <Logo size={36} iconSize={22} />
           </Link>
           
           <div className="desktop-only" style={{ display: 'flex', gap: 'var(--sp-8)', alignItems: 'center' }}>
@@ -132,42 +123,37 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mobile-only" style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
-            <ThemeToggle />
+          <div className="mobile-only" style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
+            <ThemeToggle compact={true} />
             <Link to="/login"><Button size="sm">Login</Button></Link>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="landing-hero" style={{ 
-        position: 'relative', 
-        overflow: 'hidden',
-        padding: 'clamp(110px, 14vh, 170px) 0 clamp(60px, 10vh, 120px)', 
-        background: 'radial-gradient(circle at top right, var(--accent-dim), transparent 50%), radial-gradient(circle at bottom left, var(--amber-dim), transparent 50%)'
-      }}>
+      <section className="landing-hero">
         <div className="container grid-hero">
           <div className="animate-fade-in" style={{ textAlign: 'left', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
             <Badge label="SMART AGRICULTURAL SYSTEM" variant="accent" style={{ marginBottom: 'var(--sp-5)' }} />
             <h1 style={{ 
-              fontSize: 'clamp(1.75rem, 5.5vw, 3.25rem)', 
+              fontSize: 'clamp(1.45rem, 4.8vw, 3.25rem)', 
               lineHeight: 1.2,
               marginBottom: 'var(--sp-5)', 
               fontWeight: 800,
               fontFamily: 'Plus Jakarta Sans',
               color: 'var(--text-primary)',
-              wordBreak: 'break-word',
+              wordBreak: 'normal',
               overflowWrap: 'break-word'
             }}>
               An Integrated <span className="gradient-text">Multi-Crop Monitoring</span>, Pest & Disease Detection, and Market Linkage System
             </h1>
             <p style={{ 
-              fontSize: 'clamp(0.95rem, 2.5vw, 1.15rem)', 
+              fontSize: 'clamp(0.92rem, 2.3vw, 1.15rem)', 
               color: 'var(--text-secondary)', 
               marginBottom: 'var(--sp-8)', 
               lineHeight: 1.6, 
               maxWidth: 580,
-              wordBreak: 'break-word',
+              wordBreak: 'normal',
               overflowWrap: 'break-word'
             }}>
               An AI-powered platform designed to detect plant diseases early, provide treatment recommendations, and connect farmers directly with buyers for Tomato, Maize, and Pineapple.
