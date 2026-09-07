@@ -142,18 +142,19 @@ export default function LandingPage() {
               fontWeight: 800,
               fontFamily: 'Plus Jakarta Sans',
               color: 'var(--text-primary)',
-              wordBreak: 'normal',
-              overflowWrap: 'break-word'
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+              maxWidth: '100%'
             }}>
-              An Integrated <span className="gradient-text">Multi-Crop Monitoring</span>, Pest & Disease Detection, and Market Linkage System
+              An Integrated <span className="gradient-text">Multi-Crop Monitoring</span>, Pest &amp; Disease Detection, and Market Linkage System
             </h1>
             <p style={{ 
               fontSize: 'clamp(0.92rem, 2.3vw, 1.15rem)', 
               color: 'var(--text-secondary)', 
               marginBottom: 'var(--sp-8)', 
               lineHeight: 1.6, 
-              maxWidth: 580,
-              wordBreak: 'normal',
+              maxWidth: '100%',
+              wordBreak: 'break-word',
               overflowWrap: 'break-word'
             }}>
               An AI-powered platform designed to detect plant diseases early, provide treatment recommendations, and connect farmers directly with buyers for Tomato, Maize, and Pineapple.

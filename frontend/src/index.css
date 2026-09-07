@@ -628,6 +628,18 @@ select.form-input option {
   .mobile-overlay {
     display: block !important;
   }
+
+  /* Hero text containment on mobile — symmetric left/right margins */
+  .landing-hero {
+    padding-left: 0;
+    padding-right: 0;
+    overflow-x: hidden;
+  }
+  .landing-hero .container {
+    overflow: hidden;
+    padding-left: var(--container-px);
+    padding-right: var(--container-px);
+  }
 }
 
 /* ─── Divider ────────────────────────────────────────────────────────── */
