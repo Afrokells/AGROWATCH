@@ -517,20 +517,22 @@ export default function LandingPage() {
                 Revolutionizing agricultural monitoring through computer vision and expert systems.
               </p>
             </div>
-            <div>
-              <h4 style={{ marginBottom: 'var(--sp-4)' }}>Platform</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                <a href="#features">Features</a>
-                <a href="#crops">Crops</a>
-                <a href="#how-it-works">How it Works</a>
-                <Link to="/market">Marketplace</Link>
+            <div className="footer-links-group">
+              <div>
+                <h4 style={{ marginBottom: 'var(--sp-4)' }}>Platform</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                  <a href="#features">Features</a>
+                  <a href="#crops">Crops</a>
+                  <a href="#how-it-works">How it Works</a>
+                  <Link to="/market">Marketplace</Link>
+                </div>
               </div>
-            </div>
-            <div>
-              <h4 style={{ marginBottom: 'var(--sp-4)' }}>Research</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                <span>Ho Technical University</span>
-                <span>Computer Science Dept</span>
+              <div>
+                <h4 style={{ marginBottom: 'var(--sp-4)' }}>Research</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                  <span>Ho Technical University</span>
+                  <span>Computer Science Dept</span>
+                </div>
               </div>
             </div>
           </div>
