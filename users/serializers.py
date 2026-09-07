@@ -9,6 +9,8 @@ from .validators import (
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        fields = ['id', 'username', 'full_name', 'phone_number', 'user_role', 'region', 'district', 'profile_picture', 'is_staff', 'is_superuser', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
         fields = [
             'id', 'username', 'full_name', 'phone_number', 'user_role',
             'region', 'district', 'profile_picture', 'is_staff', 'is_superuser', 'password'

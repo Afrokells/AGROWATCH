@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -6,6 +7,7 @@ import Button from '../../components/UI/Button';
 import Card from '../../components/UI/Card';
 import Select from '../../components/UI/Select';
 import Logo from '../../components/UI/Logo';
+import { User, Phone, Lock, MapPin, ChevronLeft } from 'lucide-react';
 import { User, Phone, Lock, MapPin, ChevronLeft, Eye, EyeOff, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import { REGIONS, REGIONS_DISTRICTS } from '../../data/constants';
 import authBg from '../../assets/auth_bg.png';
@@ -156,6 +158,7 @@ export default function RegisterPage() {
         navigate('/dashboard');
       }
     } catch (err) {
+      addToast('Registration failed.', 'error');
       console.error(err);
       const detail = err.response?.data?.detail || err.response?.data?.error || (typeof err.response?.data === 'object' ? Object.values(err.response.data)[0] : null) || 'Registration failed. Please check your credentials.';
       const finalMsg = Array.isArray(detail) ? detail[0] : detail;
@@ -186,6 +189,7 @@ export default function RegisterPage() {
           <div className="register-card__header">
             <Logo size={48} showText={false} style={{ margin: '0 auto var(--sp-4)', display: 'flex', justifyContent: 'center' }} />
             <h2>Create Your Account</h2>
+            <p>Join the future of agricultural intelligence</p>
             <p>Join the agricultural intelligence platform</p>
           </div>
 
@@ -209,6 +213,7 @@ export default function RegisterPage() {
 
             {/* Full Name */}
             <div className="form-group register-form__full">
+              <label className="form-label" htmlFor="register-full-name">Full Name</label>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <label className="form-label" htmlFor="register-full-name">Full Legal Name</label>
                 {formData.full_name && (
@@ -224,6 +229,7 @@ export default function RegisterPage() {
                   id="register-full-name"
                   name="full_name"
                   className="form-input"
+                  placeholder="e.g. Kwame Asante"
                   placeholder="e.g. Kwame Mensah"
                   value={formData.full_name}
                   onChange={handleChange}
@@ -233,6 +239,8 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            <div className="form-group">
+              <label className="form-label" htmlFor="register-phone">Phone Number</label>
             {/* Phone Number */}
             <div className="form-group register-form__full">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -251,6 +259,7 @@ export default function RegisterPage() {
                   name="phone_number"
                   type="tel"
                   className="form-input"
+                  placeholder="+233..."
                   placeholder="e.g. 024 123 4567 or +233..."
                   value={formData.phone_number}
                   onChange={handleChange}
@@ -260,6 +269,9 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            <div className="form-group">
+              <label className="form-label" htmlFor="register-password">Password</label>
+              <div className="register-input-wrap">
             {/* Password */}
             <div className="form-group register-form__full">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -276,8 +288,10 @@ export default function RegisterPage() {
                 <input
                   id="register-password"
                   name="password"
+                  type="password"
                   type={showPassword ? 'text' : 'password'}
                   className="form-input"
+                  placeholder="Password"
                   placeholder="At least 8 chars (letters & numbers)"
                   value={formData.password}
                   onChange={handleChange}
@@ -326,6 +340,7 @@ export default function RegisterPage() {
               options={REGIONS.map(region => ({ value: region, label: region }))}
               value={formData.region}
               onChange={(val) => setFormData(prev => ({ ...prev, region: val, district: '' }))}
+              placeholder="Select region"
               placeholder="Select region in Ghana"
             />
 
@@ -338,8 +353,10 @@ export default function RegisterPage() {
               disabled={!formData.region}
             />
 
+            <div className="register-form__full">
             <div className="register-form__full" style={{ marginTop: 'var(--sp-2)' }}>
               <Button type="submit" fullWidth size="lg" loading={loading}>
+                Create Account
                 Create Verified Account
               </Button>
             </div>

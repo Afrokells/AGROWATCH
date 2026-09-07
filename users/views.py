@@ -22,6 +22,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class LoginView(APIView):
     def post(self, request):
+        phone_number = request.data.get('phone_number')
+        password = request.data.get('password')
+        
+        user = authenticate(username=phone_number, password=password)
         phone_number = str(request.data.get('phone_number', '')).strip()
         password = str(request.data.get('password', '')).strip()
 
@@ -48,6 +52,13 @@ class LoginView(APIView):
                 break
 
         if not user:
+            # Fallback check if username was created differently or direct match
+            try:
+                u = User.objects.get(phone_number=phone_number)
+                if u.check_password(password):
+                    user = u
+            except User.DoesNotExist:
+                pass
             # Direct match check
             for u_name in possible_usernames:
                 try:
@@ -59,6 +70,8 @@ class LoginView(APIView):
                     pass
 
         if not user:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        
             return Response(
                 {'error': 'Invalid phone number or password. Please verify your credentials.'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -76,11 +89,15 @@ class RegisterView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            if 'password' in request.data:
+                user.set_password(request.data['password'])
+                user.save()
             token, _ = Token.objects.get_or_create(user=user)
             return Response({
                 'token': token.key,
                 'user': UserSerializer(user).data
             }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # Format first readable error message
         errors = serializer.errors

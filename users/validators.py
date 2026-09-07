@@ -172,3 +172,4 @@ def validate_legit_password(password_str: str, phone_number: str = "", full_name
         for part in full_name.lower().split():
             if len(part) >= 3 and part in low_pass:
                 raise ValidationError("For security, your password cannot contain your name.")
+
