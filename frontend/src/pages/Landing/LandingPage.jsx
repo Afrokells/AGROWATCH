@@ -142,23 +142,34 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="landing-hero" style={{ 
         position: 'relative', 
-        padding: 'clamp(120px, 15vh, 180px) 0 clamp(60px, 10vh, 120px)', 
+        overflow: 'hidden',
+        padding: 'clamp(110px, 14vh, 170px) 0 clamp(60px, 10vh, 120px)', 
         background: 'radial-gradient(circle at top right, var(--accent-dim), transparent 50%), radial-gradient(circle at bottom left, var(--amber-dim), transparent 50%)'
       }}>
         <div className="container grid-hero">
-          <div className="animate-fade-in" style={{ textAlign: 'left' }}>
-            <Badge label="SMART AGRICULTURAL SYSTEM" variant="accent" style={{ marginBottom: 'var(--sp-6)' }} />
+          <div className="animate-fade-in" style={{ textAlign: 'left', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+            <Badge label="SMART AGRICULTURAL SYSTEM" variant="accent" style={{ marginBottom: 'var(--sp-5)' }} />
             <h1 style={{ 
-              fontSize: 'clamp(2rem, 4vw, 3.5rem)', 
-              lineHeight: 1.15,
-              marginBottom: 'var(--sp-6)', 
+              fontSize: 'clamp(1.75rem, 5.5vw, 3.25rem)', 
+              lineHeight: 1.2,
+              marginBottom: 'var(--sp-5)', 
               fontWeight: 800,
               fontFamily: 'Plus Jakarta Sans',
-              color: 'var(--text-primary)'
+              color: 'var(--text-primary)',
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word'
             }}>
               An Integrated <span className="gradient-text">Multi-Crop Monitoring</span>, Pest & Disease Detection, and Market Linkage System
             </h1>
-            <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', marginBottom: 'var(--sp-10)', lineHeight: 1.6, maxWidth: 580 }}>
+            <p style={{ 
+              fontSize: 'clamp(0.95rem, 2.5vw, 1.15rem)', 
+              color: 'var(--text-secondary)', 
+              marginBottom: 'var(--sp-8)', 
+              lineHeight: 1.6, 
+              maxWidth: 580,
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word'
+            }}>
               An AI-powered platform designed to detect plant diseases early, provide treatment recommendations, and connect farmers directly with buyers for Tomato, Maize, and Pineapple.
             </p>
             <div style={{ display: 'flex', gap: 'var(--sp-4)' }}>
@@ -175,12 +186,13 @@ export default function LandingPage() {
           </div>
 
           {/* Interactive Agricultural Drone & Multi-Crop AI HUD */}
-          <div className="animate-float" style={{ position: 'relative', width: '100%', maxWidth: 540, margin: '0 auto' }}>
+          <div className="animate-float" style={{ position: 'relative', width: '100%', maxWidth: 520, margin: '0 auto', boxSizing: 'border-box' }}>
             {/* Ambient Background Glow */}
             <div style={{ 
-              position: 'absolute', inset: '-15px', 
-              background: 'radial-gradient(circle at center, rgba(74, 222, 128, 0.18) 0%, transparent 70%)', 
-              filter: 'blur(30px)', opacity: 0.8, zIndex: 0, pointerEvents: 'none'
+              position: 'absolute', inset: 0, 
+              borderRadius: 'var(--radius-xl)',
+              background: 'radial-gradient(circle at center, rgba(74, 222, 128, 0.2) 0%, transparent 70%)', 
+              filter: 'blur(20px)', opacity: 0.8, zIndex: 0, pointerEvents: 'none'
             }} />
 
             {/* Main HUD Card */}
@@ -193,7 +205,9 @@ export default function LandingPage() {
               background: 'linear-gradient(160deg, var(--bg-surface), var(--bg-card))',
               display: 'flex',
               flexDirection: 'column',
-              zIndex: 1
+              zIndex: 1,
+              width: '100%',
+              boxSizing: 'border-box'
             }}>
               
               {/* Header Feed Selector Bar */}
@@ -239,7 +253,7 @@ export default function LandingPage() {
               </div>
 
               {/* Viewport Image with Laser Scanning & CV Reticles */}
-              <div style={{ position: 'relative', height: 310, overflow: 'hidden', background: '#0a0f0d' }}>
+              <div style={{ position: 'relative', height: 'clamp(240px, 45vw, 310px)', overflow: 'hidden', background: '#0a0f0d' }}>
                 <img 
                   src={currentFeed.image} 
                   alt={currentFeed.title}

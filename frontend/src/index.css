@@ -100,7 +100,7 @@
 
 /* ─── Responsive Variables ─────────────────────────────────────────── */
 :root {
-  --container-px: clamp(1rem, 3vw, 2rem);
+  --container-px: clamp(1rem, 3.5vw, 2rem);
   --content-p: clamp(1rem, 2.5vw, 2rem);
 }
 
@@ -112,16 +112,16 @@
 
 @media (max-width: 768px) {
   :root {
-    --container-px: var(--sp-4);
-    --content-p: var(--sp-4);
+    --container-px: 16px;
+    --content-p: 16px;
     --sidebar-w: 0px; /* Sidebar is drawer overlay on mobile */
   }
 }
 
 @media (max-width: 480px) {
   :root {
-    --container-px: var(--sp-3);
-    --content-p: var(--sp-3);
+    --container-px: 16px;
+    --content-p: 16px;
   }
 }
 
@@ -166,11 +166,13 @@ html {
   scrollbar-width: none;
 }
 
-/* ─── Utility Classes ────────────────────────────────────────────────── */
 .container { 
   max-width: 1200px; 
   margin: 0 auto; 
-  padding: 0 var(--container-px); 
+  padding-left: calc(var(--container-px) + var(--sal));
+  padding-right: calc(var(--container-px) + var(--sar));
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .glass {
