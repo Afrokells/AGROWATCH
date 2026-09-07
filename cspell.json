@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "0.2",
   "language": "en",
   "words": [
@@ -23,12 +23,31 @@
     "capacitor",
     "vite",
     "farmsAPI",
-    "scansAPI"
+    "scansAPI",
+    "authtoken",
+    "corsheaders",
+    "makemigrations",
+    "collectstatic",
+    "noinput",
+    "gunicorn",
+    "wsgi",
+    "djangorestframework",
+    "scipy",
+    "whitenoise",
+    "psycopg",
+    "psycopg2",
+    "staticfiles"
+  ],
+  "ignoreRegExpList": [
+    "SECRET_KEY.*"
   ],
   "ignorePaths": [
     "node_modules/**",
     "dist/**",
     ".git/**",
-    "android/**"
+    "android/**",
+    "frontend/android/**",
+    "*.lock",
+    "package-lock.json"
   ]
 }
