@@ -36,7 +36,8 @@
     "whitenoise",
     "psycopg",
     "psycopg2",
-    "staticfiles"
+    "staticfiles",
+    "neem"
   ],
   "ignoreRegExpList": [
     "SECRET_KEY.*"
