@@ -27,8 +27,6 @@ export function ToastProvider({ children }) {
       {/* Toast Container */}
       <div style={{
         position: 'fixed',
-        bottom: 'var(--sp-6)',
-        right: 'var(--sp-6)',
         bottom: 'calc(var(--sp-6) + var(--sab))',
         right: 'calc(var(--sp-6) + var(--sar))',
         display: 'flex',

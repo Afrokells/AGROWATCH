@@ -34,16 +34,6 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      padding: 'var(--sp-6)',
-      position: 'relative',
-      overflow: 'hidden',
-      background: 'var(--bg-base)'
-    }}>
     <div className="login-page">
       {/* Background Image with Theme-aware Overlay */}
       <div style={{
