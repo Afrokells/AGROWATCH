@@ -8,7 +8,7 @@ on:
 jobs:
   build-ios:
     name: Build iOS App
-    runs-on: macos-latest
+    runs-on: macos-14
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -31,24 +31,27 @@ jobs:
           npm run build
           npx cap sync ios
 
-      - name: Build iOS Application with Xcode (Unsigned Archive)
+      - name: Build iOS Application (Release)
         run: |
           cd frontend/ios/App
           xcodebuild -project App.xcodeproj \
             -scheme App \
             -configuration Release \
+            -sdk iphoneos \
             -destination 'generic/platform=iOS' \
-            -archivePath "$GITHUB_WORKSPACE/build/App.xcarchive" \
-            archive \
+            -derivedDataPath derived_data \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            PROVISIONING_PROFILE_SPECIFIER=""
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            clean build
 
-      - name: Package App into IPA / Zip
+      - name: Package App into IPA
         run: |
           mkdir -p build/Payload
-          cp -r build/App.xcarchive/Products/Applications/App.app build/Payload/
+          APP_PATH=$(find frontend/ios/App/derived_data -name "App.app" -type d | head -n 1)
+          echo "Found App bundle at: $APP_PATH"
+          cp -R "$APP_PATH" build/Payload/
           cd build
           zip -qr AgroWatch-iOS.ipa Payload
 
@@ -96,7 +99,7 @@ jobs:
       - name: Build Android Debug APK
         run: |
           cd frontend/android
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
