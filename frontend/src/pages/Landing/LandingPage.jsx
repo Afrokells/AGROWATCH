@@ -6,99 +6,74 @@ import ThemeToggle from '../../components/UI/ThemeToggle';
 import Logo from '../../components/UI/Logo';
 import Modal from '../../components/UI/Modal';
 import { Leaf, ShieldCheck, ShoppingBag, ArrowRight, Scan, MapPin, BarChart3, Database, Users, Globe, Activity, Crosshair, Play, Apple, Wheat, Citrus, ChevronLeft, ChevronRight } from 'lucide-react';
-import heroDroneImg from '../../assets/hero_drone.png';
 import tomatoCropImg from '../../assets/tomato_crop.png';
 import maizeCropImg from '../../assets/maize_crop.png';
 import pineappleCropImg from '../../assets/pineapple_crop.png';
 
+
 export default function LandingPage() {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('drone');
+  const [activeCrop, setActiveCrop] = useState('tomato');
 
   useEffect(() => {
-    const tabs = ['drone', 'tomato', 'maize', 'pineapple'];
+    const crops = ['tomato', 'maize', 'pineapple'];
     const timer = setInterval(() => {
-      setActiveTab(prev => {
-        const nextIndex = (tabs.indexOf(prev) + 1) % tabs.length;
-        return tabs[nextIndex];
+      setActiveCrop(prev => {
+        const nextIndex = (crops.indexOf(prev) + 1) % crops.length;
+        return crops[nextIndex];
       });
-    }, 4500);
+    }, 3500);
     return () => clearInterval(timer);
   }, []);
 
-  const showcaseData = {
-    drone: {
-      id: 'drone',
-      label: 'Drone Flight',
-      name: 'Autonomous Drone Orthomosaic',
-      tag: 'AERIAL RECONNAISSANCE',
-      img: heroDroneImg,
-      alt: 'AgroWatch Multispectral Drone Surveying Ghana Farm Plot',
-      telemetry: 'RTK GPS • 4K MULTISPECTRAL',
-      boxLabel: 'YOLOv8 Aerial Crop Grid',
-      boxConfidence: '99.4% Precision',
-      statsCount: '400 Plants Mapped',
-      statsMetric: '12.4m Alt · 3.2m/s',
-      statusText: 'Optimal Field Vigor & Grid Alignment',
-      statusType: 'success',
-      advisory: 'Automated flight path completed. Field boundaries and canopy indices synced.'
-    },
+  const demoScans = {
     tomato: {
-      id: 'tomato',
-      label: 'Tomato Scan',
-      name: 'Tomato Foliar Disease Diagnostic',
-      tag: 'AI CROP DIAGNOSIS',
-      img: tomatoCropImg,
-      alt: 'Tomato Crop Disease Detection',
-      telemetry: 'YOLOv8 DETECTED',
-      boxLabel: 'Late Blight Identified',
-      boxConfidence: '97.2% Match',
-      statsCount: '300 Healthy / 100 Flagged',
-      statsMetric: '97.2% Accuracy',
-      statusText: 'Late Blight Detected on Lower Foliage',
-      statusType: 'warning',
-      advisory: 'Apply copper hydroxide fungicide spray and isolate affected plot sector.'
+      name: 'Tomato Crop Scan',
+      condition: 'Late Blight Detected',
+      status: 'warning',
+      confidence: '97% Match',
+      plantsCount: 400,
+      healthyCount: 300,
+      affectedCount: 100,
+      advisory: 'Apply recommended copper fungicide and prune affected lower leaves to prevent spread.'
     },
     maize: {
-      id: 'maize',
-      label: 'Maize Vigor',
-      name: 'Maize Field Canopy Vigor',
-      tag: 'LEAF CANOPY VIGOR',
-      img: maizeCropImg,
-      alt: 'Maize Crop Growth Tracking',
-      telemetry: 'ZERO PESTS SPOTTED',
-      boxLabel: 'Healthy Foliage Vigor',
-      boxConfidence: '99.1% Vigor',
-      statsCount: '400 Healthy Plants',
-      statsMetric: '100% Vigor',
-      statusText: 'Optimal Growth & Zero Fall Armyworm',
-      statusType: 'success',
-      advisory: 'Growth vigor is optimal. Maintain current irrigation and organic fertilizer cycle.'
+      name: 'Maize Crop Scan',
+      condition: 'Healthy Field Vigor',
+      status: 'success',
+      confidence: '99% Match',
+      plantsCount: 400,
+      healthyCount: 400,
+      affectedCount: 0,
+      advisory: 'Crop health is optimal. Continue regular watering and weed control schedule.'
     },
     pineapple: {
-      id: 'pineapple',
-      label: 'Pineapple Plot',
-      name: 'Pineapple Export Quality Check',
-      tag: 'EXPORT SCREENING',
-      img: pineappleCropImg,
-      alt: 'Pineapple Plot Quality Verification',
-      telemetry: 'EXPORT VERIFICATION',
-      boxLabel: 'Mealybug Symptom Spotted',
-      boxConfidence: '94.8% Match',
-      statsCount: '397 Healthy / 3 Isolated',
-      statsMetric: '94.8% Grade',
-      statusText: 'Mild Mealybug Symptoms Detected',
-      statusType: 'warning',
-      advisory: 'Apply organic neem oil solution in early morning hours before flowering.'
+      name: 'Pineapple Crop Scan',
+      condition: 'Mealybug Symptoms Spotted',
+      status: 'warning',
+      confidence: '94% Match',
+      plantsCount: 400,
+      healthyCount: 397,
+      affectedCount: 3,
+      advisory: 'Spray neem oil solution early morning to eradicate pests before flowering.'
     }
   };
 
-  const currentShowcase = showcaseData[activeTab] || showcaseData.drone;
+  const currentScan = demoScans[activeCrop];
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)', overflowX: 'hidden' }}>
       {/* Navbar */}
-      <nav className="landing-nav">
+      <nav className="landing-nav" style={{ 
+        position: 'fixed',
+        top: 0, left: 0, right: 0,
+        zIndex: 100,
+        background: 'var(--bg-base)',
+        opacity: 0.95,
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid var(--border)',
+        padding: 'calc(var(--sp-4) + var(--sat)) calc(var(--sp-4) + var(--sar)) var(--sp-4) calc(var(--sp-4) + var(--sal))'
+      }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Link to="/" aria-label="Go to AgroWatch home" style={{ display: 'inline-flex' }}>
             <Logo size={40} iconSize={24} />
@@ -126,12 +101,16 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="landing-hero">
+      <section className="landing-hero" style={{ 
+        position: 'relative', 
+        padding: 'clamp(120px, 15vh, 180px) 0 clamp(60px, 10vh, 120px)', 
+        background: 'radial-gradient(circle at top right, var(--accent-dim), transparent 50%), radial-gradient(circle at bottom left, var(--amber-dim), transparent 50%)'
+      }}>
         <div className="container grid-hero">
-          <div className="hero-intro animate-fade-in">
+          <div className="animate-fade-in" style={{ textAlign: 'left' }}>
             <Badge label="SMART AGRICULTURAL SYSTEM" variant="accent" style={{ marginBottom: 'var(--sp-6)' }} />
             <h1 style={{ 
-              fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', 
+              fontSize: 'clamp(2rem, 4vw, 3.5rem)', 
               lineHeight: 1.15,
               marginBottom: 'var(--sp-6)', 
               fontWeight: 800,
@@ -140,221 +119,157 @@ export default function LandingPage() {
             }}>
               An Integrated <span className="gradient-text">Multi-Crop Monitoring</span>, Pest & Disease Detection, and Market Linkage System
             </h1>
-            <p style={{ fontSize: 'clamp(1rem, 2vw, 1.15rem)', color: 'var(--text-secondary)', marginBottom: 'var(--sp-8)', lineHeight: 1.6, maxWidth: 580 }}>
+            <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', marginBottom: 'var(--sp-10)', lineHeight: 1.6, maxWidth: 580 }}>
               An AI-powered platform designed to detect plant diseases early, provide treatment recommendations, and connect farmers directly with buyers for Tomato, Maize, and Pineapple.
             </p>
-            <div className="hero-actions">
+            <div style={{ display: 'flex', gap: 'var(--sp-4)' }}>
               <Link to="/register">
                 <Button size="lg" iconRight={<ArrowRight size={20} />}>Start Monitoring Now</Button>
               </Link>
             </div>
             
-            <div className="hero-stats-strip">
+            <div style={{ marginTop: 'var(--sp-12)', display: 'flex', gap: 'var(--sp-8)', flexWrap: 'wrap' }}>
               <Stat label="Target Crops" value="3" />
               <Stat label="Model Accuracy" value="98%" />
               <Stat label="Detectable Conditions" value="12+" />
             </div>
           </div>
 
-          {/* Visual Showcase: Agricultural Drone & Multi-Crop AI HUD */}
-          <div className="animate-float" style={{ position: 'relative', width: '100%', maxWidth: '100%' }}>
+          {/* Interactive Scan Result Card Preview */}
+          <div className="animate-float" style={{ position: 'relative' }}>
+            <div style={{ 
+              position: 'absolute', inset: '-25px', 
+              background: 'linear-gradient(135deg, var(--accent) 0%, transparent 60%)', 
+              borderRadius: 'var(--radius-xl)', opacity: 0.15, zIndex: 0 
+            }} />
+            
             <div className="glass-strong" style={{ 
               position: 'relative', 
               borderRadius: 'var(--radius-xl)', 
               border: '1px solid var(--border)', 
-              boxShadow: '0 20px 50px rgba(0,0,0,0.25), 0 0 32px rgba(34, 197, 94, 0.12)',
-              overflow: 'hidden',
+              boxShadow: 'var(--shadow-lg)',
+              padding: 'var(--sp-6)',
               background: 'linear-gradient(145deg, var(--bg-surface), var(--bg-card))',
               display: 'flex',
               flexDirection: 'column',
-              width: '100%',
-              boxSizing: 'border-box',
-              zIndex: 1
+              gap: 'var(--sp-5)'
             }}>
-              {/* Tab Selector Header */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-                gap: '4px', 
-                background: 'var(--bg-base)', 
-                padding: '4px', 
-                borderBottom: '1px solid var(--border)',
-                width: '100%',
-                boxSizing: 'border-box'
-              }}>
-                {[
-                  { id: 'drone', label: 'Drone Flight', icon: <Scan size={13} /> },
-                  { id: 'tomato', label: 'Tomato', icon: <Apple size={13} /> },
-                  { id: 'maize', label: 'Maize', icon: <Wheat size={13} /> },
-                  { id: 'pineapple', label: 'Pineapple', icon: <Citrus size={13} /> },
-                ].map(tab => (
-                  <button 
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    style={{
-                      padding: '7px 4px', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer',
-                      fontSize: 'clamp(0.68rem, 1.8vw, 0.78rem)', fontWeight: 700, transition: 'all 0.2s ease', 
-                      whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', minWidth: 0,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                      background: activeTab === tab.id ? 'var(--accent)' : 'transparent',
-                      color: activeTab === tab.id ? '#0a1410' : 'var(--text-secondary)'
-                    }}
-                  >
-                    {tab.icon} <span>{tab.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Main Viewport with Image & AI HUD */}
-              <div style={{ position: 'relative', width: '100%', height: 'clamp(270px, 34vw, 350px)', overflow: 'hidden', background: '#050a08' }}>
-                <img 
-                  key={currentShowcase.id}
-                  src={currentShowcase.img} 
-                  alt={currentShowcase.alt} 
+              {/* Crop Selection Tabs */}
+              <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-base)', padding: '4px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                <button 
+                  onClick={() => setActiveCrop('tomato')} 
                   style={{ 
-                    width: '100%', height: '100%', objectFit: 'cover', 
-                    animation: 'fadeIn 0.35s ease'
-                  }} 
-                />
-                
-                {/* Vignette & Contrast Overlay */}
-                <div style={{ 
-                  position: 'absolute', inset: 0, 
-                  background: 'linear-gradient(to top, rgba(10, 20, 16, 0.88) 0%, rgba(10, 20, 16, 0.25) 50%, rgba(10, 20, 16, 0.55) 100%)' 
-                }} />
-
-                {/* Animated Laser Scanning Line */}
-                <div 
-                  className="animate-scan-laser"
-                  style={{
-                    position: 'absolute', left: 0, right: 0, height: '3px',
-                    background: 'linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%)',
-                    boxShadow: '0 0 16px var(--accent), 0 0 32px var(--accent)',
-                    pointerEvents: 'none', zIndex: 4
-                  }} 
-                />
-
-                {/* Top Telemetry Overlay */}
-                <div style={{
-                  position: 'absolute', top: 12, left: 12, right: 12,
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  zIndex: 5
-                }}>
-                  <div style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6,
-                    padding: '4px 10px', borderRadius: 'var(--radius-full)',
-                    background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    color: '#fff', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.04em'
+                    flex: 1, padding: '8px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
+                    fontSize: '0.85rem', fontWeight: 700, transition: 'all 0.2s ease',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    background: activeCrop === 'tomato' ? 'var(--accent)' : 'transparent',
+                    color: activeCrop === 'tomato' ? '#fff' : 'var(--text-secondary)'
                   }}>
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
-                    {currentShowcase.telemetry}
+                  <Apple size={14} /> Tomato
+                </button>
+                <button 
+                  onClick={() => setActiveCrop('maize')} 
+                  style={{ 
+                    flex: 1, padding: '8px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
+                    fontSize: '0.85rem', fontWeight: 700, transition: 'all 0.2s ease',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    background: activeCrop === 'maize' ? 'var(--accent)' : 'transparent',
+                    color: activeCrop === 'maize' ? '#fff' : 'var(--text-secondary)'
+                  }}>
+                  <Wheat size={14} /> Maize
+                </button>
+                <button 
+                  onClick={() => setActiveCrop('pineapple')} 
+                  style={{ 
+                    flex: 1, padding: '8px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
+                    fontSize: '0.85rem', fontWeight: 700, transition: 'all 0.2s ease',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    background: activeCrop === 'pineapple' ? 'var(--accent)' : 'transparent',
+                    color: activeCrop === 'pineapple' ? '#fff' : 'var(--text-secondary)'
+                  }}>
+                  <Citrus size={14} /> Pineapple
+                </button>
+              </div>
+
+              {/* Scan Card Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
+                    <Scan size={20} />
                   </div>
-
-                  <div style={{
-                    padding: '4px 10px', borderRadius: 'var(--radius-full)',
-                    background: 'rgba(34, 197, 94, 0.2)', backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(74, 222, 128, 0.4)',
-                    color: '#4ade80', fontSize: '0.72rem', fontWeight: 800
-                  }}>
-                    LIVE AI INFERENCE
+                  <div>
+                    <div style={{ fontWeight: 800, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{currentScan.name}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Diagnostic Result</div>
                   </div>
                 </div>
+                <Badge label="SCAN COMPLETE" variant="accent" />
+              </div>
 
-                {/* Computer Vision AI Target Reticle / Bounding Box */}
-                <div style={{
-                  position: 'absolute',
-                  top: '20%', left: '22%', width: '56%', height: '50%',
-                  border: '2px solid rgba(74, 222, 128, 0.75)',
-                  borderRadius: 'var(--radius-md)',
-                  boxShadow: '0 0 20px rgba(74, 222, 128, 0.25), inset 0 0 15px rgba(74, 222, 128, 0.15)',
-                  pointerEvents: 'none',
-                  zIndex: 5,
-                  display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-                  padding: 8
-                }}>
-                  {/* Corner Reticle Markers */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={{ width: 12, height: 12, borderTop: '3px solid #4ade80', borderLeft: '3px solid #4ade80' }} />
-                    <div style={{ width: 12, height: 12, borderTop: '3px solid #4ade80', borderRight: '3px solid #4ade80' }} />
-                  </div>
-
-                  {/* Centered Detection Pill */}
-                  <div style={{
-                    margin: 'auto',
-                    padding: '3px 8px',
-                    borderRadius: 4,
-                    background: currentShowcase.statusType === 'warning' ? 'rgba(239, 68, 68, 0.9)' : 'rgba(34, 197, 94, 0.9)',
-                    backdropFilter: 'blur(4px)',
-                    color: '#fff',
-                    fontSize: '0.7rem',
-                    fontWeight: 800,
-                    letterSpacing: '0.04em',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                    display: 'flex', alignItems: 'center', gap: 5
-                  }}>
-                    <Crosshair size={12} />
-                    {currentShowcase.boxLabel} • {currentShowcase.boxConfidence}
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={{ width: 12, height: 12, borderBottom: '3px solid #4ade80', borderLeft: '3px solid #4ade80' }} />
-                    <div style={{ width: 12, height: 12, borderBottom: '3px solid #4ade80', borderRight: '3px solid #4ade80' }} />
-                  </div>
+              {/* Plant Counts Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', textAlign: 'center' }}>
+                <div style={{ background: 'var(--bg-base)', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>{currentScan.plantsCount}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>PLANTS</div>
                 </div>
-
-                {/* Bottom Overlay Info Banner inside Viewport */}
-                <div style={{
-                  position: 'absolute', bottom: 12, left: 12, right: 12,
-                  padding: '8px 12px',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'rgba(10, 20, 16, 0.88)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  zIndex: 5
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
-                    <div style={{ 
-                      width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                      background: currentShowcase.statusType === 'warning' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: currentShowcase.statusType === 'warning' ? '#ef4444' : '#22c55e'
-                    }}>
-                      <ShieldCheck size={16} />
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ color: '#fff', fontSize: '0.8125rem', fontWeight: 700 }} className="truncate">
-                        {currentShowcase.name}
-                      </div>
-                      <div style={{ color: '#a3b899', fontSize: '0.7rem' }} className="truncate">
-                        {currentShowcase.statusText}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ textAlign: 'right', flexShrink: 0, paddingLeft: 8 }}>
-                    <div style={{ color: '#22c55e', fontSize: '0.85rem', fontWeight: 800 }}>
-                      {currentShowcase.statsCount}
-                    </div>
-                    <div style={{ color: '#94a39a', fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700 }}>
-                      {currentShowcase.statsMetric}
-                    </div>
-                  </div>
+                <div style={{ background: 'var(--bg-base)', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#10b981' }}>{currentScan.healthyCount}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>HEALTHY</div>
+                </div>
+                <div style={{ background: 'var(--bg-base)', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: currentScan.affectedCount > 0 ? '#ef4444' : '#10b981' }}>{currentScan.affectedCount}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>AFFECTED</div>
                 </div>
               </div>
 
-              {/* Bottom Card Footer */}
+              {/* Condition Result Banner */}
               <div style={{ 
-                padding: 'var(--sp-3) var(--sp-4)', 
-                background: 'var(--bg-surface)', 
-                borderTop: '1px solid var(--border)',
-                display: 'flex', alignItems: 'center', gap: 8, 
-                fontSize: '0.8125rem', color: 'var(--text-secondary)'
+                padding: '12px 14px', borderRadius: 'var(--radius-md)', 
+                background: currentScan.status === 'warning' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(16, 185, 129, 0.08)',
+                border: currentScan.status === 'warning' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
               }}>
-                <Leaf size={16} color="var(--accent)" style={{ flexShrink: 0 }} />
-                <span><strong>Treatment:</strong> {currentShowcase.advisory}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <ShieldCheck size={18} color={currentScan.status === 'warning' ? '#ef4444' : '#10b981'} />
+                  <span style={{ fontSize: '0.88rem', fontWeight: 700, color: currentScan.status === 'warning' ? '#ef4444' : '#10b981' }}>
+                    {currentScan.condition}
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>{currentScan.confidence}</span>
               </div>
+
+              {/* Advisory Box */}
+              <div style={{ 
+                padding: '12px 14px', borderRadius: 'var(--radius-md)', 
+                background: 'var(--bg-base)', border: '1px solid var(--border)',
+                fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5
+              }}>
+                <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Leaf size={14} color="var(--accent)" /> Treatment Advice:
+                </div>
+                {currentScan.advisory}
+              </div>
+
+              {/* Card CTA */}
+              <Link to="/register" style={{ textDecoration: 'none' }}>
+                <Button variant="outline" style={{ width: '100%', justifyContent: 'center' }} iconRight={<ArrowRight size={16} />}>
+                  Run Your Own Scan
+                </Button>
+              </Link>
+            </div>
+
+            {/* Status Floating Badge */}
+            <div className="glass" style={{ 
+              position: 'absolute', top: -14, right: 10, 
+              padding: '8px 14px', 
+              display: 'flex', alignItems: 'center', gap: 8, 
+              zIndex: 10,
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              background: 'rgba(16, 185, 129, 0.08)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: 'var(--radius-lg)'
+            }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', animation: 'pulse 1.5s infinite' }} />
+              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981', letterSpacing: '0.05em' }}>CROP SCAN DEMO • AUTO SLIDE</div>
             </div>
           </div>
         </div>
@@ -398,30 +313,10 @@ export default function LandingPage() {
       </section>
 
       {/* Features Detail Section */}
-      <section id="features" style={{ padding: 'clamp(60px, 8vh, 100px) 0', position: 'relative' }}>
+      <section id="features" style={{ padding: '100px 0', position: 'relative' }}>
         <div className="container grid-hero">
-          <div>
-            <Badge label="FEATURES" variant="info" style={{ marginBottom: 16 }} />
-            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--sp-6)' }}>
-              Simple & <span style={{ color: 'var(--accent)' }}>Actionable</span> Crop Insights
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(1rem, 2vw, 1.2rem)', marginBottom: 'var(--sp-8)', lineHeight: 1.7 }}>
-              AgroWatch turns crop photos into clear decisions. Upload your plant images to get instant diagnoses, health statistics, and direct access to produce buyers.
-            </p>
-            <div className="grid-features-box">
-              <div className="glass" style={{ padding: '20px' }}>
-                <h4 style={{ color: 'var(--accent)', marginBottom: 8 }}>Targeted AI Models</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Trained specifically for Tomato, Maize, and Pineapple.</p>
-              </div>
-              <div className="glass" style={{ padding: '20px' }}>
-                <h4 style={{ color: 'var(--info)', marginBottom: 8 }}>Direct Market Linkage</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Connect healthy harvests directly with buyers.</p>
-              </div>
-            </div>
-          </div>
-
           <div style={{ position: 'relative' }}>
-            <div className="glass-strong" style={{ padding: 'clamp(24px, 4vw, 40px)', borderRadius: 'var(--radius-xl)' }}>
+            <div className="glass-strong" style={{ padding: '40px', borderRadius: 'var(--radius-xl)' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
                 <FeatureItem 
                   icon={<Activity size={24} />} 
@@ -441,23 +336,43 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+          
+          <div>
+            <Badge label="FEATURES" variant="info" style={{ marginBottom: 16 }} />
+            <h2 style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--sp-6)' }}>
+              Simple & <span style={{ color: 'var(--accent)' }}>Actionable</span> Crop Insights
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: 'var(--sp-8)', lineHeight: 1.7 }}>
+              AgroWatch turns crop photos into clear decisions. Upload your plant images to get instant diagnoses, health statistics, and direct access to produce buyers.
+            </p>
+            <div className="grid-features-box">
+              <div className="glass" style={{ padding: '20px' }}>
+                <h4 style={{ color: 'var(--accent)', marginBottom: 8 }}>Targeted AI Models</h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Trained specifically for Tomato, Maize, and Pineapple.</p>
+              </div>
+              <div className="glass" style={{ padding: '20px' }}>
+                <h4 style={{ color: 'var(--info)', marginBottom: 8 }}>Direct Market Linkage</h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Connect healthy harvests directly with buyers.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it-works" style={{ padding: 'clamp(60px, 8vh, 100px) 0', background: 'var(--bg-surface)' }}>
+      <section id="how-it-works" style={{ padding: '120px 0', background: 'var(--bg-surface)' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 'clamp(36px, 5vh, 60px)' }}>
-            <Badge label="HOW IT WORKS" variant="info" style={{ marginBottom: 14 }} />
-            <h2 style={{ fontSize: 'clamp(1.85rem, 4vw, 2.75rem)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8 }}>Four Simple Steps</h2>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: 600, margin: '0 auto', fontSize: 'clamp(0.95rem, 2vw, 1.125rem)' }}>From photo upload to disease treatment and selling your harvest.</p>
+          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
+            <Badge label="HOW IT WORKS" variant="info" style={{ marginBottom: 16 }} />
+            <h2 style={{ fontSize: '2.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>Four Simple Steps</h2>
+            <p style={{ color: 'var(--text-secondary)', maxWidth: 600, margin: '0 auto', fontSize: '1.125rem' }}>From photo upload to disease treatment and selling your harvest.</p>
           </div>
 
           <div className="grid-steps">
-            <Step number="01" icon={<Globe size={20} />} title="Upload Crop Photos" desc="Take and upload clear photos of your crops from your phone or computer." />
-            <Step number="02" icon={<Database size={20} />} title="AI Plant Scanning" desc="Smart AI analyzes your photos to count plants and spot disease symptoms." />
-            <Step number="03" icon={<ShieldCheck size={20} />} title="Treatment Advice" desc="Get clear recommendations on how to treat any identified plant diseases." />
-            <Step number="04" icon={<ShoppingBag size={20} />} title="Sell Your Produce" desc="List your healthy crops on the marketplace to connect directly with buyers." />
+            <Step number="01" icon={<Globe size={24} />} title="Upload Crop Photos" desc="Take and upload clear photos of your crops from your phone or computer." />
+            <Step number="02" icon={<Database size={24} />} title="AI Plant Scanning" desc="Smart AI analyzes your photos to count plants and spot disease symptoms." />
+            <Step number="03" icon={<ShieldCheck size={24} />} title="Treatment Advice" desc="Get clear recommendations on how to treat any identified plant diseases." />
+            <Step number="04" icon={<ShoppingBag size={24} />} title="Sell Your Produce" desc="List your healthy crops on the marketplace to connect directly with buyers." />
           </div>
         </div>
       </section>
@@ -507,7 +422,6 @@ export default function LandingPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
                 <span>Ho Technical University</span>
                 <span>Computer Science Dept</span>
-                <span>Dissertation Project</span>
               </div>
             </div>
           </div>
@@ -537,28 +451,15 @@ function Stat({ label, value }) {
 
 function Step({ number, icon, title, desc }) {
   return (
-    <div className="glass" style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      gap: 'var(--sp-3)',
-      padding: 'clamp(var(--sp-3), 3vw, var(--sp-5))',
-      borderRadius: 'var(--radius-lg)',
-      height: '100%',
-      boxSizing: 'border-box'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <div style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.25rem)', fontWeight: 900, color: 'var(--accent)', opacity: 0.35, lineHeight: 1 }}>{number}</div>
-        <div style={{ 
-          width: 38, height: 38, borderRadius: 'var(--radius-md)', 
-          background: 'var(--accent-dim)', color: 'var(--accent)', 
-          display: 'flex', alignItems: 'center', justifyContent: 'center', 
-          flexShrink: 0 
-        }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--accent)', opacity: 0.2 }}>{number}</div>
+        <div style={{ width: 44, height: 44, borderRadius: 'var(--radius-md)', background: 'var(--accent-dim)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {icon}
         </div>
       </div>
-      <h4 style={{ fontSize: 'clamp(0.95rem, 2.2vw, 1.15rem)', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.25 }}>{title}</h4>
-      <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.78rem, 1.8vw, 0.875rem)', lineHeight: 1.45 }}>{desc}</p>
+      <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h4>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', lineHeight: 1.6 }}>{desc}</p>
     </div>
   );
 }
