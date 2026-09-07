@@ -300,10 +300,30 @@ export default function LandingPage() {
       </section>
 
       {/* Features Detail Section */}
-      <section id="features" style={{ padding: '100px 0', position: 'relative' }}>
+      <section id="features" style={{ padding: 'clamp(60px, 8vh, 100px) 0', position: 'relative' }}>
         <div className="container grid-hero">
+          <div>
+            <Badge label="FEATURES" variant="info" style={{ marginBottom: 16 }} />
+            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--sp-6)' }}>
+              Simple & <span style={{ color: 'var(--accent)' }}>Actionable</span> Crop Insights
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(1rem, 2vw, 1.2rem)', marginBottom: 'var(--sp-8)', lineHeight: 1.7 }}>
+              AgroWatch turns crop photos into clear decisions. Upload your plant images to get instant diagnoses, health statistics, and direct access to produce buyers.
+            </p>
+            <div className="grid-features-box">
+              <div className="glass" style={{ padding: '20px' }}>
+                <h4 style={{ color: 'var(--accent)', marginBottom: 8 }}>Targeted AI Models</h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Trained specifically for Tomato, Maize, and Pineapple.</p>
+              </div>
+              <div className="glass" style={{ padding: '20px' }}>
+                <h4 style={{ color: 'var(--info)', marginBottom: 8 }}>Direct Market Linkage</h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Connect healthy harvests directly with buyers.</p>
+              </div>
+            </div>
+          </div>
+
           <div style={{ position: 'relative' }}>
-            <div className="glass-strong" style={{ padding: '40px', borderRadius: 'var(--radius-xl)' }}>
+            <div className="glass-strong" style={{ padding: 'clamp(24px, 4vw, 40px)', borderRadius: 'var(--radius-xl)' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
                 <FeatureItem 
                   icon={<Activity size={24} />} 
@@ -320,26 +340,6 @@ export default function LandingPage() {
                   title="Crop Health Summaries" 
                   desc="Track plant counts, disease frequency, and crop status across all your farm scans."
                 />
-              </div>
-            </div>
-          </div>
-          
-          <div>
-            <Badge label="FEATURES" variant="info" style={{ marginBottom: 16 }} />
-            <h2 style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--sp-6)' }}>
-              Simple & <span style={{ color: 'var(--accent)' }}>Actionable</span> Crop Insights
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: 'var(--sp-8)', lineHeight: 1.7 }}>
-              AgroWatch turns crop photos into clear decisions. Upload your plant images to get instant diagnoses, health statistics, and direct access to produce buyers.
-            </p>
-            <div className="grid-features-box">
-              <div className="glass" style={{ padding: '20px' }}>
-                <h4 style={{ color: 'var(--accent)', marginBottom: 8 }}>Targeted AI Models</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Trained specifically for Tomato, Maize, and Pineapple.</p>
-              </div>
-              <div className="glass" style={{ padding: '20px' }}>
-                <h4 style={{ color: 'var(--info)', marginBottom: 8 }}>Direct Market Linkage</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Connect healthy harvests directly with buyers.</p>
               </div>
             </div>
           </div>

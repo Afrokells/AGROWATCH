@@ -99,3 +99,4 @@ jobs:
           name: AgroWatch-iOS-App
           path: build/AgroWatch-iOS.ipa
           retention-days: 14
+
