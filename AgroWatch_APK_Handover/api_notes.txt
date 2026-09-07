@@ -1,0 +1,52 @@
+================================================================================
+AGROWATCH BACKEND API & ML MODEL INTEGRATION ARCHITECTURE NOTES
+================================================================================
+
+1. BASE API CONFIGURATION
+-------------------------
+- Production Base URL: https://agrowatch-5h12.onrender.com/api
+- Protocol: HTTPS
+- Content-Type: application/json (multipart/form-data for image uploads)
+
+
+2. AUTHENTICATION SCHEME
+------------------------
+- Scheme: Django REST Framework Session & Token Authentication
+- Login Endpoint: POST /api/auth/login/
+  - Payload: { "username": "<phone_or_user>", "password": "<password>" }
+  - Response: { "user": { "id": 1, "username": "farmer_demo", "user_role": "farmer" }, "token": "..." }
+- Registration Endpoint: POST /api/auth/register/
+  - Payload: { "username": "...", "password": "...", "user_role": "farmer|buyer|admin", ... }
+
+
+3. CROP TO ML MODEL MAPPING
+---------------------------
+The computer vision pipeline utilizes ultralytics YOLOv8 object detection weights tailored per crop species:
+
+Crop Type    Weights File          Inference Engine     Target Conditions / Diseases Detected
+-------------------------------------------------------------------------------------------------
+Tomato       mlweights/tomato.pt     YOLOv8 Custom      Tomato Blight, Yellow Leaf Curl, Spot, Healthy
+Maize        mlweights/maize.pt      YOLOv8 Custom      Blight, Common Rust, Gray Leaf Spot, Healthy
+Pineapple    mlweights/pineapple.pt  YOLOv8 Custom      Heart Rot, Mealybug Wilt, Black Rot, Healthy
+
+
+4. PRE-INFERENCE IMAGE & CROP VALIDATION (`crop_validator.py`)
+--------------------------------------------------------------
+Before passing user/drone images to YOLOv8 inference, the API executes pre-inference verification:
+1. Rejects Non-Agricultural Imagery (detects human faces, skin, indoor items, vehicles, or corrupted images).
+2. Species Cross-Validation: Verifies that the uploaded leaf/field image morphology matches the selected crop_type (e.g., prevents uploading a Tomato image when scanning a Maize farm plot).
+3. Cloud-Safe Architecture: Built with OpenCV + NumPy and lazy-loaded MobileNet_V3_Small for lightweight cloud execution on Render.
+
+
+5. CORE API ENDPOINTS SUMMARY
+-----------------------------
+- GET  /api/farms/                    : List user's registered farm plots (or all farms if Admin)
+- POST /api/farms/                    : Register a new farm plot (region, area_ha, crop_type, coordinates)
+- GET  /api/scans/                    : Archive of drone crop health monitoring scans
+- POST /api/scans/                    : Upload image for ML disease detection & report generation
+- GET  /api/detections/               : Query specific detected bounding boxes and confidence scores
+- GET  /api/expert/conditions/        : Query expert agronomist recommendations and treatments
+- GET  /api/market/listings/          : Browse produce available on Market Exchange
+- POST /api/market/listings/          : Post new farm produce listing for buyers
+- GET  /api/messages/                 : Direct messaging between farmers and buyers
+================================================================================

@@ -3,9 +3,7 @@
   "appName": "AgroWatch",
   "webDir": "dist",
   "server": {
-    "androidScheme": "https",
-    "url": "https://YOUR-APP.onrender.com",
-    "cleartext": false
+    "androidScheme": "https"
   },
   "android": {
     "backgroundColor": "#f6f7f2"

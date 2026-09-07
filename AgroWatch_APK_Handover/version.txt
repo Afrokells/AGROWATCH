@@ -1,0 +1,44 @@
+================================================================================
+AGROWATCH SYSTEM VERSION & BUILD INFORMATION
+================================================================================
+
+APPLICATION METADATA:
+- Application Name: AgroWatch
+- Version Name: 1.0
+- Version Code: 1
+- Target APK Name: Agrowatch_v1.0.apk
+- Build Date: May 11, 2026
+- Application ID / Package Name: agrowatch.app.com
+
+TECHNOLOGY STACK DETAILS:
+1. Mobile Application Shell:
+   - Framework: Ionic Capacitor v6 + React 18 + Vite
+   - Android SDK Target: SDK 34 (Android 14)
+   - Minimum Android SDK: SDK 22 (Android 5.1)
+   - JDK Target: Java 17 / OpenJDK 17
+   - Build Tooling: Gradle 9.4 (Optimized R8 ProGuard Enabled)
+
+2. Cloud Backend API:
+   - Framework: Django REST Framework (DRF) + Python 3.11+
+   - API Protocol: RESTful JSON over HTTPS
+   - Production Host: Render Cloud Platform (agrowatch-5h12.onrender.com)
+
+3. Artificial Intelligence & Computer Vision:
+   - Object Detection: Ultralytics YOLOv8 (Custom Trained Weights for Tomato, Maize, Pineapple)
+   - Image & Crop Validator: OpenCV (cv2), NumPy, PyTorch / MobileNet_V3_Small
+
+REPOSITORY & HANDOVER PACKAGE STRUCTURE:
+AgroWatch_APK_Handover/
+├── Agrowatch_v1.0.apk
+├── README_INSTALL.txt
+├── screenshots/
+│   ├── fig4_1_home.png
+│   ├── fig4_2_login.png
+│   ├── fig4_3_scan.png
+│   ├── fig4_4_diagnosis.png
+│   ├── fig4_5_market.png
+│   └── fig4_6_farms.png
+├── api_notes.txt
+├── test_log.txt
+└── version.txt
+================================================================================

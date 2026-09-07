@@ -1,0 +1,31 @@
+================================================================================
+AGROWATCH MOBILE APPLICATION - COMPREHENSIVE TEST LOG
+================================================================================
+
+TEST ENVIRONMENT DETAILS:
+- Build Tested: Agrowatch_v1.0.apk (Debug/Release Build)
+- Test Devices: Samsung Galaxy S21 (Android 13), Google Pixel 6 (Android 14), Android Emulator (API 34)
+- Backend Target: https://agrowatch-5h12.onrender.com/api
+- Execution Date: 2026-05-11
+- Tester: AgroWatch QA Automation & Mobile Engineering Team
+
+---------------------------------------------------------------------------------------------------
+TEST ID   TEST CATEGORY             TEST DESCRIPTION                               STATUS   NOTES
+---------------------------------------------------------------------------------------------------
+TC-001    Installation              Install APK on Android 13/14 device            PASS     Installed smoothly without package conflict.
+TC-002    App Startup & Insets      Launch app & check splash screen & layout      PASS     Splash displays correctly; edge-to-edge UI fit.
+TC-003    Authentication            Login with demo accounts (Farmer/Buyer/Admin)  PASS     Tokens stored securely; correct route redirect.
+TC-004    User Registration         Create new user account via registration form  PASS     New user registered & authenticated against DRF.
+TC-005    Farm Plot Registration    Register new farm (Tomato, 2.5ha, Ashanti)    PASS     Farm object created & listed in Farms tab.
+TC-006    Drone Scan Upload         Upload crop leaf image for disease scan        PASS     Image sent to /api/scans/; YOLO model invoked.
+TC-007    Crop Validation           Upload invalid image (non-crop) for scan       PASS     crop_validator rejected non-agricultural image.
+TC-008    AI Diagnosis Report       View disease detection report & expert tips    PASS     Blighting detected with treatment advice rendered.
+TC-009    Market Exchange           Create produce listing & view market cards     PASS     Listing visible to buyers; contact details linked.
+TC-010    Messaging System          Send inquiry message between Buyer and Farmer  PASS     Message sent and received via API endpoints.
+TC-011    Admin Portal Access       Log in as admin_demo and check system metrics  PASS     System-wide stats, user list & scans displayed.
+TC-012    Network Error Resilience  Test offline / poor network behavior           PASS     Graceful error toast notifications displayed.
+---------------------------------------------------------------------------------------------------
+
+SUMMARY RESULT: 12 / 12 TEST CASES PASSED
+OVERALL QUALITY ASSURANCE STATUS: PASS - READY FOR HANDOVER & DEPLOYMENT
+================================================================================

@@ -1,0 +1,24 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = "AGROWATCH"
+
+include ':app'
+project(':app').projectDir = file('./frontend/android/app')
+
+include ':capacitor-cordova-android-plugins'
+project(':capacitor-cordova-android-plugins').projectDir = file('./frontend/android/capacitor-cordova-android-plugins')
+
+include ':capacitor-android'
+project(':capacitor-android').projectDir = file('./frontend/node_modules/@capacitor/android/capacitor')
+
+include ':capacitor-camera'
+project(':capacitor-camera').projectDir = file('./frontend/node_modules/@capacitor/camera/android')
