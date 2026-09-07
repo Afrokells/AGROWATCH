@@ -19,36 +19,29 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Frontend Dependencies
-        working-directory: frontend
-        run: npm install
-
-      - name: Build Web App & Sync Capacitor Android
-        working-directory: frontend
+      - name: Install Frontend Dependencies & Sync Android
         run: |
+          cd frontend
+          npm install
           npm run build
           npx cap sync android
 
-      - name: Remove any local properties
+      - name: Clean Local Properties
         run: |
           rm -f local.properties frontend/android/local.properties
 
-      - name: Grant Execute Permission to Gradlew
-        run: chmod +x frontend/android/gradlew
+      - name: Build Android APK
+        run: |
+          cd frontend/android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
 
-      - name: Build Android Debug APK
-        working-directory: frontend/android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
-
-      - name: Upload Android APK Artifact
+      - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
           name: AgroWatch-Android-APK
@@ -67,44 +60,42 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Frontend Dependencies
-        working-directory: frontend
-        run: npm install
-
-      - name: Build Web App & Sync Capacitor iOS
-        working-directory: frontend
+      - name: Install Frontend Dependencies & Sync iOS
         run: |
+          cd frontend
+          npm install
           npm run build
           npx cap sync ios
 
-      - name: Build iOS Application (Simulator & Universal Bundle)
-        working-directory: frontend/ios/App
+      - name: Resolve Swift Package Dependencies
         run: |
-          xcodebuild \
+          cd frontend/ios/App
+          xcodebuild -resolvePackageDependencies -project App.xcodeproj
+
+      - name: Build iOS App (Simulator & Universal Bundle)
+        run: |
+          cd frontend/ios/App
+          xcodebuild build \
             -project App.xcodeproj \
             -scheme App \
             -configuration Release \
-            -sdk iphonesimulator \
-            -derivedDataPath build_output \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath "$GITHUB_WORKSPACE/derived_data" \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            clean build
+            CODE_SIGNING_REQUIRED=NO
 
-      - name: Package iOS IPA & Zip Bundle
+      - name: Package iOS Bundle
         run: |
           mkdir -p build/Payload
-          APP_BUNDLE=$(find frontend/ios/App/build_output -name "App.app" -type d | head -n 1)
-          echo "Found bundle at: $APP_BUNDLE"
-          cp -R "$APP_BUNDLE" build/Payload/
+          APP_PATH=$(find "$GITHUB_WORKSPACE/derived_data" -name "App.app" -type d | head -n 1)
+          echo "Found app at: $APP_PATH"
+          cp -R "$APP_PATH" build/Payload/
           cd build
           zip -qr AgroWatch-iOS.ipa Payload
-          zip -qr AgroWatch-iOS-Simulator.zip Payload/App.app
 
-      - name: Upload iOS App Artifact
+      - name: Upload iOS App
         uses: actions/upload-artifact@v4
         with:
           name: AgroWatch-iOS-App
-          path: |
-            build/AgroWatch-iOS.ipa
-            build/AgroWatch-iOS-Simulator.zip
+          path: build/AgroWatch-iOS.ipa
           retention-days: 14
