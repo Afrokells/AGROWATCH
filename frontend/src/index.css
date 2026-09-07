@@ -299,15 +299,27 @@ select.form-input option {
   100% { transform: translateY(0px); }
 }
 
-@keyframes progress-fill {
-  from { width: 0%; }
-  to   { width: var(--target-width, 100%); }
+@keyframes scanLaser {
+  0% { top: 2%; opacity: 0.8; }
+  50% { top: 96%; opacity: 1; }
+  100% { top: 2%; opacity: 0.8; }
 }
 
 .animate-fade-in   { animation: fadeIn 0.45s ease forwards; }
 .animate-slide-in  { animation: slideInLeft 0.35s ease forwards; }
 .animate-float     { animation: float 3s ease-in-out infinite; }
 .animate-pulse-glow{ animation: pulse-glow 2s ease-in-out infinite; }
+.animate-scan-laser{
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(74, 222, 128, 0.2) 15%, #4ade80 50%, rgba(74, 222, 128, 0.2) 85%, transparent 100%);
+  box-shadow: 0 0 15px #4ade80, 0 0 30px rgba(74, 222, 128, 0.6);
+  animation: scanLaser 3.5s ease-in-out infinite;
+  z-index: 5;
+  pointer-events: none;
+}
 
 /* ─── Skeleton Loader ────────────────────────────────────────────────── */
 .skeleton {
