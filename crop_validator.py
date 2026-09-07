@@ -2,11 +2,13 @@
 AgroWatch Crop Image & Species Validator
 Performs multi-stage pre-inference verification:
 1. Rejects non-agricultural imagery (human faces, skin, animals, vehicles, indoor objects, blank images).
-2. Performs Crop Species & Morphology Cross-Validation (prevents Tomato leaves on Maize plots, etc.).
+2. Performs Crop Species & Morphology Cross-Validation (prevents Tomato on Maize, etc.).
+3. Positively rejects out-of-scope / unsupported plant species (e.g. cassava, cocoa, banana, cabbage, flowers, weeds).
 Lightweight & Cloud-Safe: Operates via pure OpenCV + NumPy with optional PyTorch enhancement.
 """
 
 import os
+import re
 from pathlib import Path
 from typing import Tuple, Dict, Any
 import cv2
@@ -33,15 +35,31 @@ def _get_classifier():
             _CATEGORIES = weights.meta["categories"]
             _TRANSFORM = weights.transforms()
         except Exception:
-            # Running on lightweight cloud tier (e.g. Render) without heavy PyTorch
             _CLASSIFIER = False
     return _CLASSIFIER, _TRANSFORM, _CATEGORIES
 
 
 CROP_SEMANTIC_KEYWORDS = {
-    "maize": {"corn", "ear", "corncob", "hay", "maize", "grain", "cereal"},
+    "maize": {"corn", "ear", "corncob", "hay", "maize", "grain", "cereal", "sorghum"},
     "tomato": {"tomato", "nightshade", "bell_pepper", "cucumber", "zucchini", "vegetable", "leaf"},
     "pineapple": {"pineapple", "ananas", "artichoke", "bromeliad"},
+}
+
+# Out-of-scope non-target agricultural crops, garden plants, fungi, and trees
+UNSUPPORTED_SPECIES_KEYWORDS = {
+    # Non-target crops & fruits
+    "banana", "plantain", "cassava", "yam", "cocoa", "cacao", "coffee",
+    "cabbage", "head_cabbage", "broccoli", "cauliflower", "potato", "sweet_potato",
+    "apple", "orange", "lemon", "citrus", "lime", "grape", "strawberry", "fig", "pomegranate",
+    "mushroom", "fungus", "agaric", "bolete", "earthstar",
+    # Flowers & ornamental plants
+    "rose", "daisy", "tulip", "sunflower", "orchid", "dahlia", "marigold",
+    "flowerpot", "pot", "houseplant", "fern", "cactus",
+    # Trees & woody vegetation
+    "palm", "palm_tree", "tree", "forest", "wood", "log", "oak", "pine", "bamboo",
+    # Animals, insects, furniture, non-agricultural
+    "dog", "cat", "bird", "insect", "spider", "beetle", "person", "chair", "table",
+    "couch", "bed", "vehicle", "car", "building", "wall"
 }
 
 
@@ -80,8 +98,9 @@ def analyze_leaf_morphology(img_bgr: np.ndarray) -> Dict[str, Any]:
 def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[bool, str, Dict[str, Any]]:
     """
     Validates that:
-    1. The image is a legitimate plant/crop photo (not human face, car, wall, animal).
+    1. The image contains legitimate agricultural plant foliage (rejects skin, cars, furniture, walls).
     2. The image matches the selected crop value chain (Tomato, Maize, Pineapple).
+    3. Rejects unsupported / out-of-scope non-target crops (e.g. cassava, cocoa, banana, cabbage, flowers, weed).
 
     Args:
         image_path: Path to the image file.
@@ -176,7 +195,7 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
             metrics,
         )
 
-    # ── Stage 2: Crop Species Cross-Validation ────────────────────────────────
+    # ── Stage 2: Crop Species Identification & Non-Target Rejection ───────────
     classifier, transform, categories = _get_classifier()
     if classifier and transform:
         try:
@@ -193,13 +212,34 @@ def validate_crop_image(image_path: str, crop_type: str = "tomato") -> Tuple[boo
 
             metrics["semantic_top_predictions"] = list(zip(predicted_labels[:3], top_scores[:3]))
 
-            # Check if clearly detected as another specific crop value chain
+            # Check target matches
             is_predicted_maize = any(any(k in lbl for k in CROP_SEMANTIC_KEYWORDS["maize"]) for lbl in predicted_labels[:3])
             is_predicted_pineapple = any(any(k in lbl for k in CROP_SEMANTIC_KEYWORDS["pineapple"]) for lbl in predicted_labels[:3])
             is_predicted_tomato = any(any(k in lbl for k in CROP_SEMANTIC_KEYWORDS["tomato"]) for lbl in predicted_labels[:3])
 
+            # Check for non-target / unsupported species
+            detected_unsupported = None
+            for lbl in predicted_labels[:3]:
+                for unsupp in UNSUPPORTED_SPECIES_KEYWORDS:
+                    if unsupp in lbl and not any(k in lbl for k in CROP_SEMANTIC_KEYWORDS.get(crop_type, [])):
+                        detected_unsupported = lbl.replace("_", " ").title()
+                        break
+                if detected_unsupported:
+                    break
+
+            # 1. Reject Unsupported Plant Species (not Tomato, Maize, or Pineapple)
+            if detected_unsupported and not (is_predicted_maize or is_predicted_pineapple or is_predicted_tomato):
+                return (
+                    False,
+                    f"Unsupported Crop Species: The uploaded image appears to contain {detected_unsupported}, "
+                    f"which is not supported by AgroWatch. AgroWatch is calibrated specifically for Tomato, Maize, "
+                    f"and Pineapple crops. Please upload photos of your {crop_display} crop.",
+                    metrics,
+                )
+
             venation = morphology["venation_parallelism"]
 
+            # 2. Cross-Crop Validation
             # If user selected MAIZE, but image is Tomato / Pineapple
             if crop_type == "maize":
                 if is_predicted_pineapple:

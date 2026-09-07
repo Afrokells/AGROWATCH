@@ -9,7 +9,11 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+<<<<<<< HEAD
     implementation project(':capacitor-camera')
+=======
+
+>>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
 
 }
 

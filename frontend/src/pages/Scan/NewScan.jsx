@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+<<<<<<< HEAD
 import { UploadCloud, Image as ImageIcon, X, AlertCircle, Layers, Sparkles, CheckCircle2, Camera as CameraIcon } from 'lucide-react';
+=======
+import { 
+  UploadCloud, Image as ImageIcon, X, AlertCircle, Layers, Sparkles, 
+  CheckCircle2, Camera, RefreshCw, FlipHorizontal, Eye, ShieldCheck 
+} from 'lucide-react';
+>>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -38,7 +45,17 @@ export default function NewScan() {
   const [files, setFiles] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [scanMode, setScanMode] = useState('batch'); // 'batch' (separate scans at a go) vs 'sequence' (single multi-frame scan)
+  const [scanMode, setScanMode] = useState('batch'); // 'batch' vs 'sequence'
+  
+  // Input Method: 'upload' vs 'camera'
+  const [inputTab, setInputTab] = useState('upload');
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [facingMode, setFacingMode] = useState('environment'); // 'environment' (rear) vs 'user' (front)
+  const [cameraError, setCameraError] = useState(null);
+
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const nativeCameraInputRef = useRef(null);
 
   const [userFarms, setUserFarms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -62,10 +79,98 @@ export default function NewScan() {
     if (user) loadFarms();
   }, [user, preselectedFarmId]);
 
+  // ── Camera Stream Lifecycle ───────────────────────────────────────────────
+  const startCamera = async (facing = facingMode) => {
+    setCameraError(null);
+    stopCamera();
+
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera access is not supported by your current browser.');
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: facing,
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        },
+        audio: false
+      });
+
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      setIsCameraActive(true);
+    } catch (err) {
+      console.error('Camera stream error:', err);
+      let errorMsg = 'Could not access camera. Please check camera permissions.';
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        errorMsg = 'Camera permission denied. Please allow camera access in your browser settings.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        errorMsg = 'No camera device found on this system.';
+      }
+      setCameraError(errorMsg);
+      setIsCameraActive(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  const toggleCameraFacing = () => {
+    const nextFacing = facingMode === 'environment' ? 'user' : 'environment';
+    setFacingMode(nextFacing);
+    startCamera(nextFacing);
+  };
+
+  useEffect(() => {
+    if (inputTab === 'camera') {
+      startCamera(facingMode);
+    } else {
+      stopCamera();
+    }
+    return () => {
+      stopCamera();
+    };
+  }, [inputTab]);
+
+  const capturePhoto = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const file = new File([blob], `crop_camera_${timestamp}.jpg`, { type: 'image/jpeg' });
+        setFiles(prev => [...prev, file]);
+        addToast('Photo captured and added to scan queue!', 'success');
+      }
+    }, 'image/jpeg', 0.95);
+  };
+
+  // ── File Handlers ─────────────────────────────────────────────────────────
   const handleFileChange = (e) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
       setFiles(prev => [...prev, ...newFiles]);
+      addToast(`Added ${newFiles.length} photo${newFiles.length > 1 ? 's' : ''} to queue`, 'info');
     }
   };
 
@@ -121,9 +226,11 @@ export default function NewScan() {
     setFiles(files.filter((_, i) => i !== index));
   };
 
+  // ── Start Scan Analysis ───────────────────────────────────────────────────
   const startScan = async () => {
     if (!selectedFarm || files.length === 0) return;
     
+    stopCamera();
     setIsScanning(true);
     let currentProgress = 0;
     
@@ -138,7 +245,6 @@ export default function NewScan() {
       const farm = userFarms.find(f => f.id === selectedFarm);
       const crop = farm ? farm.crop_type : 'tomato';
 
-      // Build FormData to send real image files to backend for YOLOv8 inference
       const formData = new FormData();
       formData.append('farm', selectedFarm);
       formData.append('crop_type', crop);
@@ -164,7 +270,6 @@ export default function NewScan() {
       console.error(err);
       clearInterval(interval);
 
-      // If backend is unreachable (e.g. Vercel static demo without cloud backend URL or network blocked)
       if (!err.response && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
         setProgress(100);
         setTimeout(() => {
@@ -206,7 +311,7 @@ export default function NewScan() {
           <AlertCircle size={48} style={{ color: 'var(--amber)', margin: '0 auto var(--sp-6)' }} />
           <h2 style={{ fontSize: '1.25rem', marginBottom: 'var(--sp-2)' }}>No Farms Registered</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--sp-6)' }}>
-            You need to register at least one farm plot before initiating a drone scan.
+            You need to register at least one farm plot before initiating a crop scan.
           </p>
           <Button onClick={() => navigate('/farms/new')}>Register a Farm</Button>
         </Card>
@@ -215,20 +320,21 @@ export default function NewScan() {
   }
 
   return (
-    <div className="animate-fade-in" style={{ maxWidth: 800, margin: '0 auto' }}>
+    <div className="animate-fade-in" style={{ maxWidth: 840, margin: '0 auto' }}>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Initiate New Scan</h1>
-          <p className="page-subtitle">Upload drone imagery or field photos. You can upload multiple images to run scans at a go.</p>
+          <h1 className="page-title">Initiate Crop Scan</h1>
+          <p className="page-subtitle">Upload drone imagery or take live photos of your crops for AI health diagnosis.</p>
         </div>
       </div>
 
       <Card>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-6)' }}>
+          
           {/* Farm Selection */}
           <div>
             <label style={{ display: 'block', marginBottom: 'var(--sp-2)', fontWeight: 600, color: 'var(--text-primary)' }}>
-              Select Farm Plot
+              Select Farm Plot <span style={{ color: 'var(--danger)' }}>*</span>
             </label>
             <Select 
               value={selectedFarm} 
@@ -236,14 +342,15 @@ export default function NewScan() {
               disabled={isScanning}
               options={userFarms.map(farm => ({
                 value: farm.id,
-                label: `${farm.farm_name} (${farm.crop_type})`
+                label: `${farm.farm_name} (${farm.crop_type.toUpperCase()})`
               }))}
-              placeholder="-- Select a farm --"
+              placeholder="-- Select your registered farm plot --"
             />
           </div>
 
-          {/* File Upload Area */}
+          {/* Input Source Toggle Tabs */}
           <div>
+<<<<<<< HEAD
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-2)' }}>
               <label style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                 {isNativePlatform ? 'Capture Crop Images' : 'Upload Crop Images (Single or Multi-Scan Batch)'}
@@ -304,6 +411,58 @@ export default function NewScan() {
               </div>
             ) : (
               /* ── Web / desktop file input ── */
+=======
+            <div style={{ display: 'flex', gap: 'var(--sp-3)', marginBottom: 'var(--sp-4)' }}>
+              <button
+                type="button"
+                onClick={() => setInputTab('upload')}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '10px 16px',
+                  borderRadius: 'var(--radius-md)',
+                  background: inputTab === 'upload' ? 'var(--accent)' : 'var(--bg-input)',
+                  color: inputTab === 'upload' ? '#0a1410' : 'var(--text-secondary)',
+                  border: `1px solid ${inputTab === 'upload' ? 'var(--accent)' : 'var(--border)'}`,
+                  fontWeight: 700,
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <UploadCloud size={18} /> Upload Drone / Gallery Photos
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setInputTab('camera')}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '10px 16px',
+                  borderRadius: 'var(--radius-md)',
+                  background: inputTab === 'camera' ? 'var(--accent)' : 'var(--bg-input)',
+                  color: inputTab === 'camera' ? '#0a1410' : 'var(--text-secondary)',
+                  border: `1px solid ${inputTab === 'camera' ? 'var(--accent)' : 'var(--border)'}`,
+                  fontWeight: 700,
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <Camera size={18} /> Live Camera Capture
+              </button>
+            </div>
+
+            {/* TAB 1: File / Drone Upload Area */}
+            {inputTab === 'upload' && (
+>>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
               <div style={{
                 border: '2px dashed var(--border)',
                 borderRadius: 'var(--radius-lg)',
@@ -315,9 +474,15 @@ export default function NewScan() {
                 opacity: isScanning ? 0.5 : 1,
                 pointerEvents: isScanning ? 'none' : 'auto'
               }}>
+<<<<<<< HEAD
                 <input
                   type="file"
                   multiple
+=======
+                <input 
+                  type="file" 
+                  multiple 
+>>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
                   accept="image/*"
                   onChange={handleFileChange}
                   style={{
@@ -334,6 +499,151 @@ export default function NewScan() {
                 </p>
               </div>
             )}
+<<<<<<< HEAD
+=======
+
+            {/* TAB 2: Live Camera Viewfinder & Controls */}
+            {inputTab === 'camera' && (
+              <div style={{
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+                background: '#000',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
+              }}>
+                {cameraError ? (
+                  <div style={{ padding: 'var(--sp-8)', textAlign: 'center', color: 'var(--danger)' }}>
+                    <AlertCircle size={40} style={{ margin: '0 auto var(--sp-3)' }} />
+                    <p style={{ fontWeight: 600, marginBottom: 'var(--sp-4)' }}>{cameraError}</p>
+                    
+                    {/* Fallback Native Camera Trigger */}
+                    <div style={{ display: 'flex', gap: 'var(--sp-3)', justifyContent: 'center' }}>
+                      <Button variant="secondary" onClick={() => startCamera(facingMode)} icon={<RefreshCw size={16} />}>
+                        Retry Camera
+                      </Button>
+                      
+                      <Button 
+                        variant="primary" 
+                        onClick={() => nativeCameraInputRef.current?.click()}
+                        icon={<Camera size={16} />}
+                      >
+                        Open Device Camera
+                      </Button>
+                      <input 
+                        type="file" 
+                        ref={nativeCameraInputRef}
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Live Video Element */}
+                    <div style={{ position: 'relative', width: '100%', maxHeight: 440, background: '#050a08', display: 'flex', justifyContent: 'center' }}>
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        style={{ width: '100%', maxHeight: 440, objectFit: 'contain' }}
+                      />
+
+                      {/* Plant Alignment Target Frame */}
+                      <div style={{
+                        position: 'absolute',
+                        inset: '12%',
+                        border: '2px dashed rgba(16, 185, 129, 0.6)',
+                        borderRadius: 'var(--radius-lg)',
+                        pointerEvents: 'none',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        padding: 12
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <div style={{ width: 16, height: 16, borderTop: '3px solid var(--accent)', borderLeft: '3px solid var(--accent)' }} />
+                          <div style={{ width: 16, height: 16, borderTop: '3px solid var(--accent)', borderRight: '3px solid var(--accent)' }} />
+                        </div>
+                        <div style={{ textAlign: 'center', color: '#fff', fontSize: '0.75rem', textShadow: '0 1px 4px rgba(0,0,0,0.8)', background: 'rgba(0,0,0,0.4)', padding: '4px 8px', borderRadius: 4, margin: '0 auto' }}>
+                          Align crop leaf or field foliage within frame
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <div style={{ width: 16, height: 16, borderBottom: '3px solid var(--accent)', borderLeft: '3px solid var(--accent)' }} />
+                          <div style={{ width: 16, height: 16, borderBottom: '3px solid var(--accent)', borderRight: '3px solid var(--accent)' }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Camera Control Bar */}
+                    <div style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'rgba(10, 20, 16, 0.95)',
+                      borderTop: '1px solid var(--border)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}>
+                      <button
+                        type="button"
+                        onClick={toggleCameraFacing}
+                        title="Flip Camera (Front/Rear)"
+                        style={{
+                          background: 'var(--bg-input)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 'var(--radius-full)',
+                          padding: '8px 12px',
+                          color: 'var(--text-secondary)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontSize: '0.8125rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <FlipHorizontal size={16} /> Flip
+                      </button>
+
+                      {/* Large Snap Shutter Button */}
+                      <button
+                        type="button"
+                        onClick={capturePhoto}
+                        style={{
+                          width: 58,
+                          height: 58,
+                          borderRadius: '50%',
+                          background: 'var(--accent)',
+                          border: '4px solid rgba(255,255,255,0.8)',
+                          color: '#0a1410',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          boxShadow: '0 0 16px rgba(16, 185, 129, 0.5)',
+                          transition: 'transform 0.1s ease'
+                        }}
+                        onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.92)'}
+                        onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        title="Capture Photo"
+                      >
+                        <Camera size={26} />
+                      </button>
+
+                      <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                        {files.length} snapped
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+>>>>>>> a4576a96e94f540f1e286cc4ea94d9945290960f
           </div>
 
           {/* Batch Mode Options (Shown when 2+ files selected) */}
@@ -395,12 +705,12 @@ export default function NewScan() {
             </div>
           )}
 
-          {/* Selected File List */}
+          {/* Selected File & Snapshot List */}
           {files.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  Selected Imagery ({files.length})
+                  Ready to Analyze ({files.length} Photo{files.length > 1 ? 's' : ''})
                 </span>
                 {!isScanning && (
                   <button 
