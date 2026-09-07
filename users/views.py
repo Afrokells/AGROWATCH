@@ -97,14 +97,14 @@ class RegisterView(APIView):
                 'token': token.key,
                 'user': UserSerializer(user).data
             }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Format first readable error message
+        # Format readable error message
         errors = serializer.errors
         error_msg = "Registration validation failed."
         for field, err_list in errors.items():
             if isinstance(err_list, list) and len(err_list) > 0:
-                error_msg = f"{err_list[0]}"
+                field_name = field.replace('_', ' ').title()
+                error_msg = f"{field_name}: {err_list[0]}"
                 break
             elif isinstance(err_list, str):
                 error_msg = err_list

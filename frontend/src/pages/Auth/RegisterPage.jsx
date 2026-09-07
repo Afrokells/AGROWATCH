@@ -260,20 +260,35 @@ export default function RegisterPage() {
       }
     } catch (err) {
       console.error(err);
-      const serverDetail = err.response?.data?.detail || err.response?.data?.error;
-      const fieldErrors = err.response?.data?.errors;
-      
+      const data = err.response?.data;
       const reasons = [];
-      if (fieldErrors && typeof fieldErrors === 'object') {
-        Object.entries(fieldErrors).forEach(([field, msgs]) => {
-          const fieldTitle = field.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
-          const msgText = Array.isArray(msgs) ? msgs[0] : String(msgs);
-          reasons.push(`${fieldTitle}: ${msgText}`);
-        });
-      } else if (serverDetail) {
-        reasons.push(serverDetail);
-      } else {
-        reasons.push('Registration failed. Please verify all contact credentials and try again.');
+
+      if (data) {
+        if (typeof data === 'string') {
+          reasons.push(data);
+        } else if (data.detail && typeof data.detail === 'string') {
+          reasons.push(data.detail);
+        } else if (data.error && typeof data.error === 'string') {
+          reasons.push(data.error);
+        }
+
+        // Parse any field-specific errors
+        const fieldErrors = data.errors || (typeof data === 'object' ? data : {});
+        if (typeof fieldErrors === 'object' && fieldErrors !== null) {
+          Object.entries(fieldErrors).forEach(([field, msgs]) => {
+            if (field === 'detail' || field === 'error' || field === 'errors') return;
+            const fieldTitle = field.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+            const msgText = Array.isArray(msgs) ? msgs[0] : (typeof msgs === 'object' ? JSON.stringify(msgs) : String(msgs));
+            const formatted = `${fieldTitle}: ${msgText}`;
+            if (!reasons.includes(formatted)) {
+              reasons.push(formatted);
+            }
+          });
+        }
+      }
+
+      if (reasons.length === 0) {
+        reasons.push(err.message || 'Registration failed. Please verify all contact credentials and try again.');
       }
 
       setSubmitErrors(reasons);
