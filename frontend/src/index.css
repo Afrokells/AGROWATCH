@@ -287,6 +287,13 @@ select.form-input option {
   100% { transform: translateY(100%); }
 }
 
+@keyframes scanLaser {
+  0% { top: 0%; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -294,7 +301,7 @@ select.form-input option {
 
 @keyframes float {
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  50% { transform: translateY(-12px); }
   100% { transform: translateY(0px); }
 }
 
@@ -305,8 +312,9 @@ select.form-input option {
 
 .animate-fade-in   { animation: fadeIn 0.45s ease forwards; }
 .animate-slide-in  { animation: slideInLeft 0.35s ease forwards; }
-.animate-float     { animation: float 3s ease-in-out infinite; }
+.animate-float     { animation: float 4s ease-in-out infinite; }
 .animate-pulse-glow{ animation: pulse-glow 2s ease-in-out infinite; }
+.animate-scan-laser{ animation: scanLaser 3.5s ease-in-out infinite; }
 
 /* ─── Skeleton Loader ────────────────────────────────────────────────── */
 .skeleton {
