@@ -108,8 +108,8 @@ export default function LandingPage() {
         top: 0, left: 0, right: 0,
         zIndex: 100,
         background: 'var(--bg-base)',
-        opacity: 0.95,
-        backdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--border)',
         padding: 'calc(var(--sp-4) + var(--sat)) calc(var(--sp-4) + var(--sar)) var(--sp-4) calc(var(--sp-4) + var(--sal))'
       }}>
@@ -167,10 +167,10 @@ export default function LandingPage() {
               </Link>
             </div>
             
-            <div style={{ marginTop: 'var(--sp-12)', display: 'flex', gap: 'var(--sp-8)', flexWrap: 'wrap' }}>
+            <div className="hero-stats-row">
               <Stat label="Target Crops" value="3" />
               <Stat label="Model Accuracy" value="98%" />
-              <Stat label="Detectable Conditions" value="12+" />
+              <Stat label="Conditions" value="12+" />
             </div>
           </div>
 
@@ -198,12 +198,13 @@ export default function LandingPage() {
               
               {/* Header Feed Selector Bar */}
               <div style={{ 
-                padding: '12px 14px', 
+                padding: '10px 12px', 
                 borderBottom: '1px solid var(--border)', 
                 background: 'rgba(0,0,0,0.12)',
                 display: 'flex', 
                 gap: 6, 
-                overflowX: 'auto'
+                overflowX: 'auto',
+                WebkitOverflowScrolling: 'touch'
               }} className="no-scrollbar">
                 {Object.values(heroFeeds).map((feed) => {
                   const FeedIcon = feed.icon;
@@ -213,23 +214,24 @@ export default function LandingPage() {
                       key={feed.id}
                       onClick={() => setActiveFeed(feed.id)}
                       style={{
-                        padding: '7px 12px',
+                        padding: '6px 10px',
                         borderRadius: 'var(--radius-md)',
                         border: isActive ? '1px solid var(--accent)' : '1px solid var(--border)',
                         background: isActive ? 'var(--accent)' : 'var(--bg-base)',
                         color: isActive ? '#fff' : 'var(--text-secondary)',
-                        fontSize: '0.8125rem',
+                        fontSize: '0.78rem',
                         fontWeight: 700,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 6,
+                        gap: 5,
                         whiteSpace: 'nowrap',
+                        flexShrink: 0,
                         transition: 'all 0.2s ease',
                         boxShadow: isActive ? '0 2px 10px rgba(74, 222, 128, 0.35)' : 'none'
                       }}
                     >
-                      <FeedIcon size={14} />
+                      <FeedIcon size={13} />
                       <span>{feed.label}</span>
                     </button>
                   );
@@ -344,20 +346,22 @@ export default function LandingPage() {
               </div>
 
               {/* Bottom Telemetry & Diagnostics Panel */}
-              <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 
                 {/* 3 Metric Badges */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 6 }}>
                   {currentFeed.stats.map((st, idx) => (
                     <div key={idx} style={{ 
                       background: 'var(--bg-base)', 
-                      padding: '8px 10px', 
+                      padding: '8px 6px', 
                       borderRadius: 'var(--radius-md)', 
                       border: '1px solid var(--border)',
-                      textAlign: 'center'
+                      textAlign: 'center',
+                      minWidth: 0,
+                      overflow: 'hidden'
                     }}>
-                      <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>{st.value}</div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>{st.label}</div>
+                      <div style={{ fontSize: 'clamp(0.85rem, 3.2vw, 1rem)', fontWeight: 800, color: 'var(--text-primary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{st.value}</div>
+                      <div style={{ fontSize: 'clamp(0.58rem, 1.8vw, 0.68rem)', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: 2 }}>{st.label}</div>
                     </div>
                   ))}
                 </div>
@@ -553,9 +557,9 @@ export default function LandingPage() {
 
 function Stat({ label, value }) {
   return (
-    <div>
-      <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent)' }}>{value}</div>
-      <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>{label}</div>
+    <div style={{ minWidth: 0 }}>
+      <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2.25rem)', fontWeight: 800, color: 'var(--accent)', lineHeight: 1.1 }}>{value}</div>
+      <div style={{ fontSize: 'clamp(0.68rem, 2vw, 0.8125rem)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginTop: 4 }}>{label}</div>
     </div>
   );
 }
