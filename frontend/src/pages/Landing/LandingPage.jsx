@@ -347,19 +347,19 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it-works" style={{ padding: '120px 0', background: 'var(--bg-surface)' }}>
+      <section id="how-it-works" style={{ padding: 'clamp(60px, 8vh, 100px) 0', background: 'var(--bg-surface)' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <Badge label="HOW IT WORKS" variant="info" style={{ marginBottom: 16 }} />
-            <h2 style={{ fontSize: '2.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>Four Simple Steps</h2>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: 600, margin: '0 auto', fontSize: '1.125rem' }}>From photo upload to disease treatment and selling your harvest.</p>
+          <div style={{ textAlign: 'center', marginBottom: 'clamp(36px, 5vh, 60px)' }}>
+            <Badge label="HOW IT WORKS" variant="info" style={{ marginBottom: 14 }} />
+            <h2 style={{ fontSize: 'clamp(1.85rem, 4vw, 2.75rem)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8 }}>Four Simple Steps</h2>
+            <p style={{ color: 'var(--text-secondary)', maxWidth: 600, margin: '0 auto', fontSize: 'clamp(0.95rem, 2vw, 1.125rem)' }}>From photo upload to disease treatment and selling your harvest.</p>
           </div>
 
           <div className="grid-steps">
-            <Step number="01" icon={<Globe size={24} />} title="Upload Crop Photos" desc="Take and upload clear photos of your crops from your phone or computer." />
-            <Step number="02" icon={<Database size={24} />} title="AI Plant Scanning" desc="Smart AI analyzes your photos to count plants and spot disease symptoms." />
-            <Step number="03" icon={<ShieldCheck size={24} />} title="Treatment Advice" desc="Get clear recommendations on how to treat any identified plant diseases." />
-            <Step number="04" icon={<ShoppingBag size={24} />} title="Sell Your Produce" desc="List your healthy crops on the marketplace to connect directly with buyers." />
+            <Step number="01" icon={<Globe size={20} />} title="Upload Crop Photos" desc="Take and upload clear photos of your crops from your phone or computer." />
+            <Step number="02" icon={<Database size={20} />} title="AI Plant Scanning" desc="Smart AI analyzes your photos to count plants and spot disease symptoms." />
+            <Step number="03" icon={<ShieldCheck size={20} />} title="Treatment Advice" desc="Get clear recommendations on how to treat any identified plant diseases." />
+            <Step number="04" icon={<ShoppingBag size={20} />} title="Sell Your Produce" desc="List your healthy crops on the marketplace to connect directly with buyers." />
           </div>
         </div>
       </section>
@@ -439,15 +439,28 @@ function Stat({ label, value }) {
 
 function Step({ number, icon, title, desc }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--accent)', opacity: 0.2 }}>{number}</div>
-        <div style={{ width: 44, height: 44, borderRadius: 'var(--radius-md)', background: 'var(--accent-dim)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="glass" style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      gap: 'var(--sp-3)',
+      padding: 'clamp(var(--sp-3), 3vw, var(--sp-5))',
+      borderRadius: 'var(--radius-lg)',
+      height: '100%',
+      boxSizing: 'border-box'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <div style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.25rem)', fontWeight: 900, color: 'var(--accent)', opacity: 0.35, lineHeight: 1 }}>{number}</div>
+        <div style={{ 
+          width: 38, height: 38, borderRadius: 'var(--radius-md)', 
+          background: 'var(--accent-dim)', color: 'var(--accent)', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', 
+          flexShrink: 0 
+        }}>
           {icon}
         </div>
       </div>
-      <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h4>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', lineHeight: 1.6 }}>{desc}</p>
+      <h4 style={{ fontSize: 'clamp(0.95rem, 2.2vw, 1.15rem)', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.25 }}>{title}</h4>
+      <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.78rem, 1.8vw, 0.875rem)', lineHeight: 1.45 }}>{desc}</p>
     </div>
   );
 }
