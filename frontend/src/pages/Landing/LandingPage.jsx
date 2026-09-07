@@ -349,22 +349,16 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Bottom Quick Action Card Footer */}
+              {/* Bottom Card Footer */}
               <div style={{ 
-                padding: 'var(--sp-4)', 
+                padding: 'var(--sp-3) var(--sp-4)', 
                 background: 'var(--bg-surface)', 
                 borderTop: '1px solid var(--border)',
-                display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)'
+                display: 'flex', alignItems: 'center', gap: 8, 
+                fontSize: '0.8125rem', color: 'var(--text-secondary)'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                  <Leaf size={16} color="var(--accent)" style={{ flexShrink: 0 }} />
-                  <span><strong>Treatment:</strong> {currentShowcase.advisory}</span>
-                </div>
-                <Link to="/register" style={{ textDecoration: 'none', width: '100%' }}>
-                  <Button variant="outline" style={{ width: '100%', justifyContent: 'center' }} iconRight={<ArrowRight size={16} />}>
-                    Launch Live Crop Diagnostic
-                  </Button>
-                </Link>
+                <Leaf size={16} color="var(--accent)" style={{ flexShrink: 0 }} />
+                <span><strong>Treatment:</strong> {currentShowcase.advisory}</span>
               </div>
             </div>
           </div>
