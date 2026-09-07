@@ -32,7 +32,6 @@ export default function NewScan() {
 
   const videoRef = useRef(null);
   const streamRef = useRef(null);
-  const fileInputRef = useRef(null);
   const nativeCameraInputRef = useRef(null);
 
   const [userFarms, setUserFarms] = useState([]);
@@ -106,14 +105,12 @@ export default function NewScan() {
     setIsCameraActive(false);
   };
 
-  // Flip camera between front and rear
   const toggleCameraFacing = () => {
     const nextFacing = facingMode === 'environment' ? 'user' : 'environment';
     setFacingMode(nextFacing);
     startCamera(nextFacing);
   };
 
-  // Handle Tab Switch
   useEffect(() => {
     if (inputTab === 'camera') {
       startCamera(facingMode);
@@ -125,7 +122,6 @@ export default function NewScan() {
     };
   }, [inputTab]);
 
-  // Capture frame from live video feed
   const capturePhoto = () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
@@ -203,7 +199,6 @@ export default function NewScan() {
       console.error(err);
       clearInterval(interval);
 
-      // Cloud Demo Fallback Mode on Vercel
       if (!err.response && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
         setProgress(100);
         setTimeout(() => {
@@ -382,7 +377,7 @@ export default function NewScan() {
                     <AlertCircle size={40} style={{ margin: '0 auto var(--sp-3)' }} />
                     <p style={{ fontWeight: 600, marginBottom: 'var(--sp-4)' }}>{cameraError}</p>
                     
-                    {/* Fallback Native Camera Trigger for Mobile */}
+                    {/* Fallback Native Camera Trigger */}
                     <div style={{ display: 'flex', gap: 'var(--sp-3)', justifyContent: 'center' }}>
                       <Button variant="secondary" onClick={() => startCamera(facingMode)} icon={<RefreshCw size={16} />}>
                         Retry Camera
