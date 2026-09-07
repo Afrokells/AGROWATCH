@@ -429,7 +429,7 @@ export default function LandingPage() {
       {/* Features Detail Section */}
       <section id="features" style={{ padding: '100px 0', position: 'relative' }}>
         <div className="container grid-hero">
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative' }} className="features-detail-col">
             <div className="glass-strong" style={{ padding: '40px', borderRadius: 'var(--radius-xl)' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
                 <FeatureItem 
@@ -451,7 +451,7 @@ export default function LandingPage() {
             </div>
           </div>
           
-          <div>
+          <div className="features-intro-col">
             <Badge label="FEATURES" variant="info" style={{ marginBottom: 16 }} />
             <h2 style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--sp-6)' }}>
               Simple & <span style={{ color: 'var(--accent)' }}>Actionable</span> Crop Insights
@@ -472,6 +472,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
 
       {/* How it Works Section */}
       <section id="how-it-works" style={{ padding: '120px 0', background: 'var(--bg-surface)' }}>

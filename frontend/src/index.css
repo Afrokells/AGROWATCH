@@ -487,6 +487,9 @@ select.form-input option {
     grid-template-columns: 1fr 1fr;
     gap: var(--sp-8);
   }
+  /* Features section: show intro text (title/desc) before detail cards on mobile */
+  .features-intro-col { order: 1; }
+  .features-detail-col { order: 2; }
 }
 
 @media (max-width: 768px) {
