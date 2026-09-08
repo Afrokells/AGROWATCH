@@ -37,7 +37,20 @@
     "psycopg",
     "psycopg2",
     "staticfiles",
-    "neem"
+    "neem",
+    "Sobel",
+    "mlweights",
+    "mobilenet",
+    "imagenet",
+    "ananas",
+    "bolete",
+    "newaxis",
+    "preds",
+    "ksize",
+    "imread",
+    "ycrcb",
+    "earthstar",
+    "cardoon"
   ],
   "ignoreRegExpList": [
     "SECRET_KEY.*"
