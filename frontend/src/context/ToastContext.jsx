@@ -6,19 +6,24 @@ const ToastContext = createContext(null);
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback((message, type = 'info') => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
-    
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-      removeToast(id);
-    }, 3000);
-  }, []);
-
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  const addToast = useCallback((message, type = 'info', duration = null) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    
+    // Error toasts stay persistent until the user presses OK / dismiss.
+    // Success / info toasts auto-remove after 4.5 seconds (or custom duration).
+    const autoDismissTime = duration !== null ? duration : (type === 'error' ? 0 : 4500);
+
+    if (autoDismissTime > 0) {
+      setTimeout(() => {
+        removeToast(id);
+      }, autoDismissTime);
+    }
+  }, [removeToast]);
 
   return (
     <ToastContext.Provider value={{ addToast }}>
@@ -33,34 +38,81 @@ export function ToastProvider({ children }) {
         flexDirection: 'column',
         gap: 'var(--sp-2)',
         zIndex: 9999,
-        pointerEvents: 'none'
+        pointerEvents: 'none',
+        maxWidth: 'calc(100vw - var(--sp-8) - var(--sal) - var(--sar))',
       }}>
         {toasts.map((toast) => (
           <div key={toast.id} className="animate-fade-in" style={{
             background: 'var(--bg-card)',
-            border: '1px solid var(--border)',
+            border: toast.type === 'error' ? '1.5px solid var(--danger, #ef4444)' : '1px solid var(--border)',
             borderRadius: 'var(--radius-md)',
             padding: 'var(--sp-3) var(--sp-4)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             gap: 'var(--sp-3)',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+            boxShadow: '0 12px 28px rgba(0,0,0,0.22)',
             minWidth: 280,
+            maxWidth: 420,
             pointerEvents: 'auto'
           }}>
-            {toast.type === 'success' && <CheckCircle size={18} style={{ color: 'var(--accent)' }} />}
-            {toast.type === 'error' && <AlertTriangle size={18} style={{ color: 'var(--danger)' }} />}
-            {toast.type === 'info' && <Info size={18} style={{ color: 'var(--text-secondary)' }} />}
+            <div style={{ marginTop: 2, flexShrink: 0 }}>
+              {toast.type === 'success' && <CheckCircle size={18} style={{ color: 'var(--accent)' }} />}
+              {toast.type === 'error' && <AlertTriangle size={18} style={{ color: 'var(--danger, #ef4444)' }} />}
+              {toast.type === 'info' && <Info size={18} style={{ color: 'var(--text-secondary)' }} />}
+            </div>
             
-            <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>
-              {toast.message}
-            </span>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+              <span style={{
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: 'var(--text-primary)',
+                lineHeight: 1.45,
+                wordBreak: 'break-word'
+              }}>
+                {toast.message}
+              </span>
+
+              {toast.type === 'error' && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 2 }}>
+                  <button
+                    onClick={() => removeToast(toast.id)}
+                    style={{
+                      background: 'var(--danger, #ef4444)',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: 'var(--radius-sm, 6px)',
+                      padding: '4px 14px',
+                      fontSize: '0.8125rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'opacity 0.2s',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                  >
+                    OK
+                  </button>
+                </div>
+              )}
+            </div>
             
-            <button onClick={() => removeToast(toast.id)} style={{
-              background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)'
-            }}>
-              <X size={16} />
-            </button>
+            {toast.type !== 'error' && (
+              <button
+                onClick={() => removeToast(toast.id)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  padding: 2,
+                  marginTop: 2,
+                  flexShrink: 0
+                }}
+                aria-label="Close toast"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
         ))}
       </div>
