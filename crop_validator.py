@@ -39,11 +39,18 @@ _ORT_SESSION = None
 _ORT_LABELS: Optional[List[str]] = None
 _ORT_READY: Optional[bool] = None   # None = not attempted yet
 
-# ── Vocabulary ────────────────────────────────────────────────────────────────
+# ── Vocabulary (Exact ImageNet-1K classes per crop) ───────────────────────────
 CROP_SEMANTIC_KEYWORDS: Dict[str, set] = {
-    "maize":     {"corn", "ear", "corncob", "hay", "maize", "grain", "cereal", "sorghum"},
-    "tomato":    {"tomato", "nightshade", "bell_pepper", "cucumber", "zucchini", "vegetable"},
-    "pineapple": {"pineapple", "ananas", "artichoke", "bromeliad"},
+    "maize": {
+        "corn", "ear", "hay",
+    },
+    "tomato": {
+        "bell_pepper", "cucumber", "zucchini", "hip",
+        "acorn_squash", "butternut_squash", "spaghetti_squash",
+    },
+    "pineapple": {
+        "pineapple", "artichoke", "cardoon",
+    },
 }
 
 UNSUPPORTED_SPECIES_KEYWORDS = {
@@ -157,14 +164,14 @@ def _classify_image_ort(image_path: str) -> Optional[List[Tuple[str, float]]]:
 def _score_crops(top_preds: List[Tuple[str, float]]) -> Dict[str, float]:
     """
     Accumulates probability mass for each supported crop category.
-    Each prediction contributes to at most one bucket.
+    Each prediction contributes to at most one bucket via exact class match.
     """
     scores: Dict[str, float] = {c: 0.0 for c in CROP_SEMANTIC_KEYWORDS}
     scores["other"] = 0.0
     for label, prob in top_preds:
         matched = False
         for crop, keywords in CROP_SEMANTIC_KEYWORDS.items():
-            if any(k in label for k in keywords):
+            if label in keywords:
                 scores[crop] += prob
                 matched = True
                 break
@@ -426,15 +433,6 @@ def validate_crop_image(
                 f"Please upload {crop_display} foliage or select the correct farm plot.",
                 metrics,
             )
-
-        # -- Supplemental morphology check when semantic model is uncertain --
-        # When total supported-crop probability < 15 %, MobileNet can't clearly
-        # identify any of the three crops.  Apply venation morphology as a
-        # secondary signal to catch obvious monocot/dicot mismatches.
-        if total_supported < 0.15:
-            ok, reason = _morphology_species_check(crop_type, venation)
-            if not ok:
-                return False, reason, metrics
 
     else:
         # ── Stage 2b: Morphology-only fallback (ONNX unavailable) ───────────
