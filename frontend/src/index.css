@@ -414,6 +414,10 @@ select.form-input option {
   grid-template-columns: 1.2fr 1fr;
   gap: clamp(var(--sp-8), 4vw, var(--sp-12));
   align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .hero-stats-row {
@@ -421,14 +425,20 @@ select.form-input option {
   display: flex;
   gap: var(--sp-8);
   align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 640px) {
   .hero-stats-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 8px;
     margin-top: var(--sp-8);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 }
 
@@ -612,7 +622,10 @@ select.form-input option {
   width: 100%;
   max-width: 100vw;
   box-sizing: border-box;
-  padding: calc(clamp(100px, 14vh, 160px) + var(--sat)) 0 clamp(50px, 8vh, 100px);
+  padding-top: calc(clamp(90px, 12vh, 150px) + var(--sat));
+  padding-bottom: clamp(40px, 6vh, 80px);
+  padding-left: 0;
+  padding-right: 0;
   background: radial-gradient(circle at top right, var(--accent-dim), transparent 50%), radial-gradient(circle at bottom left, var(--amber-dim), transparent 50%);
 }
 
@@ -632,16 +645,19 @@ select.form-input option {
     display: block !important;
   }
 
-  /* Hero text containment on mobile — symmetric left/right margins */
   .landing-hero {
     padding-left: 0;
     padding-right: 0;
     overflow-x: hidden;
+    width: 100%;
   }
   .landing-hero .container {
+    padding-left: calc(var(--container-px) + var(--sal));
+    padding-right: calc(var(--container-px) + var(--sar));
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
     overflow: hidden;
-    padding-left: var(--container-px);
-    padding-right: var(--container-px);
   }
 }
 

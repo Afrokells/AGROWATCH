@@ -173,7 +173,7 @@ export default function LandingPage() {
           </div>
 
           {/* Interactive Agricultural Drone & Multi-Crop AI HUD */}
-          <div className="animate-float" style={{ position: 'relative', width: '100%', maxWidth: 520, margin: '0 auto', boxSizing: 'border-box' }}>
+          <div className="animate-float" style={{ position: 'relative', width: '100%', maxWidth: 'min(520px, 100%)', minWidth: 0, margin: '0 auto', boxSizing: 'border-box' }}>
             {/* Ambient Background Glow */}
             <div style={{ 
               position: 'absolute', inset: 0, 
@@ -194,6 +194,8 @@ export default function LandingPage() {
               flexDirection: 'column',
               zIndex: 1,
               width: '100%',
+              maxWidth: '100%',
+              minWidth: 0,
               boxSizing: 'border-box'
             }}>
               
@@ -205,7 +207,11 @@ export default function LandingPage() {
                 display: 'flex', 
                 gap: 6, 
                 overflowX: 'auto',
-                WebkitOverflowScrolling: 'touch'
+                WebkitOverflowScrolling: 'touch',
+                width: '100%',
+                maxWidth: '100%',
+                minWidth: 0,
+                boxSizing: 'border-box'
               }} className="no-scrollbar">
                 {Object.values(heroFeeds).map((feed) => {
                   const FeedIcon = feed.icon;
@@ -266,29 +272,31 @@ export default function LandingPage() {
 
                 {/* Top Telemetry Pills */}
                 <div style={{ 
-                  position: 'absolute', top: 12, left: 12, right: 12, 
+                  position: 'absolute', top: 10, left: 10, right: 10,
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  zIndex: 6, pointerEvents: 'none'
+                  gap: 6, zIndex: 6, pointerEvents: 'none'
                 }}>
                   <div style={{ 
-                    padding: '4px 10px', borderRadius: 'var(--radius-sm)', 
-                    background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
+                    padding: '3px 8px', borderRadius: 'var(--radius-sm)',
+                    background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
                     border: '1px solid rgba(74, 222, 128, 0.4)',
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    color: '#4ade80', fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.05em'
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    color: '#4ade80', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.03em',
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                   }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', animation: 'pulse 1.2s infinite' }} />
-                    <span>AI SCANNER ACTIVE</span>
+                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', flexShrink: 0, animation: 'pulse 1.2s infinite' }} />
+                    <span>AI SCANNER</span>
                   </div>
 
                   <div style={{ 
-                    padding: '4px 10px', borderRadius: 'var(--radius-sm)', 
-                    background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
+                    padding: '3px 8px', borderRadius: 'var(--radius-sm)',
+                    background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    color: '#fff', fontSize: '0.72rem', fontWeight: 700,
-                    display: 'flex', alignItems: 'center', gap: 5
+                    color: '#fff', fontSize: '0.65rem', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                   }}>
-                    <Activity size={12} color="var(--accent)" />
+                    <Activity size={11} color="var(--accent)" style={{ flexShrink: 0 }} />
                     <span>4K MULTISPECTRAL</span>
                   </div>
                 </div>
@@ -323,8 +331,9 @@ export default function LandingPage() {
                     position: 'absolute', bottom: -24, left: 0,
                     background: 'rgba(0,0,0,0.85)', padding: '2px 8px', borderRadius: 4,
                     border: '1px solid rgba(74, 222, 128, 0.5)',
-                    color: '#4ade80', fontSize: '0.68rem', fontWeight: 800,
-                    whiteSpace: 'nowrap', letterSpacing: '0.04em'
+                    color: '#4ade80', fontSize: '0.65rem', fontWeight: 800,
+                    whiteSpace: 'nowrap', letterSpacing: '0.04em',
+                    maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis'
                   }}>
                     {currentFeed.targetBox.label}
                   </div>
@@ -333,16 +342,16 @@ export default function LandingPage() {
                 {/* Bottom Overlay Gradient & GPS Tag */}
                 <div style={{
                   position: 'absolute', bottom: 0, left: 0, right: 0,
-                  height: 60,
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)',
-                  display: 'flex', alignItems: 'flex-end', padding: '10px 14px',
-                  justifyContent: 'space-between', zIndex: 5, pointerEvents: 'none'
+                  height: 50,
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%)',
+                  display: 'flex', alignItems: 'flex-end', padding: '8px 10px',
+                  justifyContent: 'space-between', gap: 6, zIndex: 5, pointerEvents: 'none'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'rgba(255,255,255,0.85)', fontSize: '0.75rem', fontWeight: 600 }}>
-                    <MapPin size={13} color="var(--accent)" />
-                    <span>{currentFeed.location}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'rgba(255,255,255,0.9)', fontSize: '0.7rem', fontWeight: 600, minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                    <MapPin size={12} color="var(--accent)" style={{ flexShrink: 0 }} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentFeed.location}</span>
                   </div>
-                  <span style={{ fontSize: '0.7rem', color: '#4ade80', fontWeight: 800 }}>{currentFeed.tag}</span>
+                  <span style={{ fontSize: '0.65rem', color: '#4ade80', fontWeight: 800, flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '45%' }}>{currentFeed.tag}</span>
                 </div>
               </div>
 
