@@ -53,38 +53,38 @@ CROP_SEMANTIC_KEYWORDS: Dict[str, set] = {
     },
 }
 
-UNSUPPORTED_SPECIES_KEYWORDS = {
-    # Non-target crops & fruits
-    "banana", "plantain", "cassava", "yam", "cocoa", "cacao", "coffee",
-    "cabbage", "head_cabbage", "broccoli", "cauliflower", "potato", "sweet_potato",
-    "apple", "orange", "lemon", "citrus", "lime", "grape", "strawberry", "fig",
-    "pomegranate", "mushroom", "fungus", "agaric", "bolete", "earthstar",
-    # Ornamental / non-crop plants
-    "rose", "daisy", "tulip", "sunflower", "orchid", "dahlia", "marigold",
-    "flowerpot", "pot", "houseplant", "fern", "cactus", "rapeseed",
-    # Woody / non-agricultural vegetation
-    "palm", "palm_tree", "tree", "forest", "wood", "log", "oak", "pine", "bamboo",
-    # Non-agricultural / indoor objects & animals
-    "dog", "cat", "bird", "insect", "spider", "beetle", "person",
-    "chair", "table", "couch", "bed", "vehicle", "car", "building", "wall",
-    # UI / digital content (catches app screenshots)
-    "web_site", "screen", "monitor", "television", "laptop", "phone",
-    # ── Water activities & watercraft ──────────────────────────────────────────
-    "canoe", "gondola", "kayak", "lifeboat", "speedboat", "fireboat",
-    "boathouse", "paddle", "paddlewheel",
-    # ── Natural outdoor scenes (non-agricultural) ──────────────────────────────
-    "lakeside", "seashore", "sandbar", "coral_reef", "valley", "alp",
-    "geyser", "volcano", "cliff", "promontory", "bubble",
-    # ── Human activities & sports ─────────────────────────────────────────────
-    "scuba_diver", "ballplayer", "groom", "swimming_trunks", "ski", "ski_mask",
-    "basketball", "soccer_ball", "tennis_ball", "rugby_ball", "cricket",
-    "volleyball", "golf_ball",
-    # ── Land vehicles & transport ─────────────────────────────────────────────
-    "jeep", "sports_car", "passenger_car", "freight_car", "streetcar",
-    "school_bus", "trolleybus", "minibus", "garbage_truck", "tow_truck",
-    "trailer_truck", "bullet_train", "aircraft_carrier", "barrow",
-    # ── Human-built structures (non-farm) ─────────────────────────────────────
-    "castle", "church", "monastery", "prison", "greenhouse",
+# ── Strict crop-only whitelist ────────────────────────────────────────────────
+# ONLY labels from (or visually similar to) Tomato, Maize, and Pineapple pass.
+# Every animal, insect, human, vehicle, building, sky, water or other crop
+# that the ONNX model scores confidently will be rejected as non-agricultural.
+FARM_CONTEXT_ALLOWED: set = {
+    # ── MAIZE (exact ImageNet-1K classes that MobileNetV2 predicts for maize) ──
+    "corn",       # ImageNet 987
+    "ear",        # ImageNet 998 — maize ear / corn cob
+    "hay",        # ImageNet 958 — dried maize stalk texture
+
+    # ── TOMATO (ImageNet classes predicted for tomato plants and fruit) ────────
+    "bell_pepper",       # 945 — red/green coloration similar to tomato
+    "cucumber",          # 943 — elongated green fruit on vine
+    "zucchini",          # 939 — green leafy vegetable
+    "hip",               # 989 — fruit hip/berry shape
+    "acorn_squash",      # 941 — round fruiting body
+    "butternut_squash",  # 942 — gourd-like fruit
+    "spaghetti_squash",  # 940 — yellow fruiting body
+
+    # ── PINEAPPLE (ImageNet classes predicted for pineapple plants) ───────────
+    "pineapple",  # 953 — direct match
+    "artichoke",  # 944 — thistle-like crown similar to pineapple
+    "cardoon",    # 946 — spiky leaf rosette similar to pineapple crown
+
+    # ── Disease markers visible ON the leaf surface of all three crops ─────────
+    # MobileNetV2 sometimes sees fungal texture rather than the crop itself.
+    "mushroom",       # 947 — mold/fungal mass on diseased tissue
+    "agaric",         # 992 — fungal cap on rotting tissue
+    "gyromitra",      # 993 — brain-like mold texture
+    "coral_fungus",   # 991 — coral-shaped fungal growth on stems
+    "hen-of-the-woods",  # 996 — leafy fungal cluster
+    "bolete",         # 997 — fleshy fungal body
 }
 
 
@@ -415,36 +415,35 @@ def validate_crop_image(
         selected_score           = scores.get(crop_type, 0.0)
         total_supported          = sum(scores[c] for c in CROP_SEMANTIC_KEYWORDS)
 
-        # -- Unsupported species / scene check --
-        # Reject when a blacklisted label appears with >= 5% confidence
-        # AND no supported crop accumulates >= 5% total probability.
-        # Uses EXACT label matching to avoid false positives from substrings.
-        unsupported_found = None
-        unsupported_prob  = 0.0
-        for label, prob in top_preds[:10]:          # scan all top-10 predictions
-            if prob < 0.05:
-                break
-            if label in UNSUPPORTED_SPECIES_KEYWORDS:
-                unsupported_found = label.replace("_", " ").title()
-                unsupported_prob  = prob
-                break
+        # -- Non-agricultural image detection (whitelist-based) --
+        # Anything NOT in FARM_CONTEXT_ALLOWED is not expected in a crop field.
+        # Approach: if the top prediction (>= 35%) is outside our allowed set,
+        # or if the top-3 predictions are ALL outside it with no crop signal → reject.
 
-        # High-confidence instant reject (top-1 clearly an unsupported scene ≥ 35%)
-        if unsupported_found and unsupported_prob >= 0.35:
+        top_label, top_prob = top_preds[0] if top_preds else ("", 0.0)
+
+        # Tier 1: high-confidence non-agricultural top prediction
+        if top_prob >= 0.35 and top_label not in FARM_CONTEXT_ALLOWED:
+            friendly = top_label.replace("_", " ").title()
             return (
                 False,
                 f"Non-agricultural image detected: The photo appears to show "
-                f"'{unsupported_found}' instead of crop plants. "
+                f"'{friendly}' instead of crop plants. "
                 f"Please upload clear field photos of your {crop_display} plants.",
                 metrics,
             )
 
-        # Lower-confidence unsupported label with no crop signal at all
-        if unsupported_found and total_supported < 0.05:
+        # Tier 2: majority of top-5 predictions are non-agricultural and no crop found
+        non_farm_in_top5 = sum(
+            1 for lbl, prob in top_preds[:5]
+            if prob >= 0.05 and lbl not in FARM_CONTEXT_ALLOWED
+        )
+        if non_farm_in_top5 >= 3 and total_supported < 0.05:
+            friendly = top_label.replace("_", " ").title()
             return (
                 False,
                 f"Non-agricultural image: The photo appears to contain "
-                f"'{unsupported_found}' rather than a crop field. "
+                f"'{friendly}' rather than a crop field. "
                 f"Please upload photos of your {crop_display} crop.",
                 metrics,
             )
