@@ -61,7 +61,7 @@ UNSUPPORTED_SPECIES_KEYWORDS = {
     "pomegranate", "mushroom", "fungus", "agaric", "bolete", "earthstar",
     # Ornamental / non-crop plants
     "rose", "daisy", "tulip", "sunflower", "orchid", "dahlia", "marigold",
-    "flowerpot", "pot", "houseplant", "fern", "cactus",
+    "flowerpot", "pot", "houseplant", "fern", "cactus", "rapeseed",
     # Woody / non-agricultural vegetation
     "palm", "palm_tree", "tree", "forest", "wood", "log", "oak", "pine", "bamboo",
     # Non-agricultural / indoor objects & animals
@@ -69,6 +69,22 @@ UNSUPPORTED_SPECIES_KEYWORDS = {
     "chair", "table", "couch", "bed", "vehicle", "car", "building", "wall",
     # UI / digital content (catches app screenshots)
     "web_site", "screen", "monitor", "television", "laptop", "phone",
+    # ── Water activities & watercraft ──────────────────────────────────────────
+    "canoe", "gondola", "kayak", "lifeboat", "speedboat", "fireboat",
+    "boathouse", "paddle", "paddlewheel",
+    # ── Natural outdoor scenes (non-agricultural) ──────────────────────────────
+    "lakeside", "seashore", "sandbar", "coral_reef", "valley", "alp",
+    "geyser", "volcano", "cliff", "promontory", "bubble",
+    # ── Human activities & sports ─────────────────────────────────────────────
+    "scuba_diver", "ballplayer", "groom", "swimming_trunks", "ski", "ski_mask",
+    "basketball", "soccer_ball", "tennis_ball", "rugby_ball", "cricket",
+    "volleyball", "golf_ball",
+    # ── Land vehicles & transport ─────────────────────────────────────────────
+    "jeep", "sports_car", "passenger_car", "freight_car", "streetcar",
+    "school_bus", "trolleybus", "minibus", "garbage_truck", "tow_truck",
+    "trailer_truck", "bullet_train", "aircraft_carrier", "barrow",
+    # ── Human-built structures (non-farm) ─────────────────────────────────────
+    "castle", "church", "monastery", "prison", "greenhouse",
 }
 
 
@@ -168,15 +184,19 @@ def _score_crops(top_preds: List[Tuple[str, float]]) -> Dict[str, float]:
     """
     scores: Dict[str, float] = {c: 0.0 for c in CROP_SEMANTIC_KEYWORDS}
     scores["other"] = 0.0
+
     for label, prob in top_preds:
         matched = False
+
         for crop, keywords in CROP_SEMANTIC_KEYWORDS.items():
             if label in keywords:
                 scores[crop] += prob
                 matched = True
                 break
+
         if not matched:
             scores["other"] += prob
+
     return scores
 
 
@@ -344,11 +364,21 @@ def validate_crop_image(
         "morphology":            morphology,
     }
 
+    # 1a. Skin-dominant rejection (people taking selfies / face photos)
+    # Fires when skin is clearly present AND no significant crop foliage exists
     if skin_ratio > 0.30 and green_ratio < 0.08 and exg_positive_ratio < 0.08:
         return (
             False,
             "The uploaded image appears to contain a human face or skin rather than "
             "agricultural crops. Please upload clear field photos of your plants.",
+            metrics,
+        )
+    # Also reject if skin is moderately high but NO crop green is found
+    if skin_ratio > 0.15 and green_ratio < 0.02 and exg_positive_ratio < 0.02:
+        return (
+            False,
+            "The uploaded image appears to show a person rather than crop plants. "
+            "Please upload clear field photos of your plants.",
             metrics,
         )
 
@@ -385,30 +415,37 @@ def validate_crop_image(
         selected_score           = scores.get(crop_type, 0.0)
         total_supported          = sum(scores[c] for c in CROP_SEMANTIC_KEYWORDS)
 
-        # -- Unsupported species check --
-        # Only reject when a blacklisted label appears with >= 5 % confidence
-        # AND no supported crop accumulates >= 10 % probability.
+        # -- Unsupported species / scene check --
+        # Reject when a blacklisted label appears with >= 5% confidence
+        # AND no supported crop accumulates >= 5% total probability.
+        # Uses EXACT label matching to avoid false positives from substrings.
         unsupported_found = None
-        for label, prob in top_preds[:5]:
+        unsupported_prob  = 0.0
+        for label, prob in top_preds[:10]:          # scan all top-10 predictions
             if prob < 0.05:
                 break
-            for kw in UNSUPPORTED_SPECIES_KEYWORDS:
-                if kw in label and not any(
-                    k in label
-                    for c_kws in CROP_SEMANTIC_KEYWORDS.values()
-                    for k in c_kws
-                ):
-                    unsupported_found = label.replace("_", " ").title()
-                    break
-            if unsupported_found:
+            if label in UNSUPPORTED_SPECIES_KEYWORDS:
+                unsupported_found = label.replace("_", " ").title()
+                unsupported_prob  = prob
                 break
 
-        if unsupported_found and total_supported < 0.10:
+        # High-confidence instant reject (top-1 clearly an unsupported scene ≥ 35%)
+        if unsupported_found and unsupported_prob >= 0.35:
             return (
                 False,
-                f"Unsupported Crop Species: The image appears to contain '{unsupported_found}', "
-                f"which AgroWatch does not support. AgroWatch is calibrated specifically for "
-                f"Tomato, Maize, and Pineapple. Please upload photos of your {crop_display} crop.",
+                f"Non-agricultural image detected: The photo appears to show "
+                f"'{unsupported_found}' instead of crop plants. "
+                f"Please upload clear field photos of your {crop_display} plants.",
+                metrics,
+            )
+
+        # Lower-confidence unsupported label with no crop signal at all
+        if unsupported_found and total_supported < 0.05:
+            return (
+                False,
+                f"Non-agricultural image: The photo appears to contain "
+                f"'{unsupported_found}' rather than a crop field. "
+                f"Please upload photos of your {crop_display} crop.",
                 metrics,
             )
 
