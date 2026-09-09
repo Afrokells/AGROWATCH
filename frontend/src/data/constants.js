@@ -1,5 +1,8 @@
 import React from 'react';
 import { Apple, Wheat, Citrus } from 'lucide-react';
+import tomatoCropImg from '../assets/tomato_crop.png';
+import maizeCropImg from '../assets/maize_crop.png';
+import pineappleCropImg from '../assets/pineapple_crop.png';
 
 export const CROPS = ['tomato', 'maize', 'pineapple'];
 
@@ -246,4 +249,43 @@ export const SEVERITY_COLORS = {
   none:   { color: '#4ade80', bg: 'rgba(74,222,128,0.12)' },
   medium: { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
   high:   { color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+};
+
+export const CROP_IMAGES = {
+  tomato: tomatoCropImg,
+  maize: maizeCropImg,
+  pineapple: pineappleCropImg,
+};
+
+export const CROP_THEMES = {
+  tomato: {
+    name: 'Tomato',
+    emoji: '🍅',
+    accent: '#ef4444',
+    accentDim: 'rgba(239, 68, 68, 0.16)',
+    border: 'rgba(239, 68, 68, 0.32)',
+    glow: 'rgba(239, 68, 68, 0.25)',
+    tag: 'Fresh Harvest',
+    image: tomatoCropImg,
+  },
+  maize: {
+    name: 'Maize',
+    emoji: '🌽',
+    accent: '#f59e0b',
+    accentDim: 'rgba(245, 158, 11, 0.16)',
+    border: 'rgba(245, 158, 11, 0.32)',
+    glow: 'rgba(245, 158, 11, 0.25)',
+    tag: 'Field Crop',
+    image: maizeCropImg,
+  },
+  pineapple: {
+    name: 'Pineapple',
+    emoji: '🍍',
+    accent: '#22c55e',
+    accentDim: 'rgba(34, 197, 94, 0.16)',
+    border: 'rgba(34, 197, 94, 0.32)',
+    glow: 'rgba(34, 197, 94, 0.25)',
+    tag: 'Sweet Harvest',
+    image: pineappleCropImg,
+  },
 };
