@@ -53,10 +53,7 @@ CROP_SEMANTIC_KEYWORDS: Dict[str, set] = {
     },
 }
 
-# ── Strict crop-only whitelist ────────────────────────────────────────────────
-# ONLY labels from (or visually similar to) Tomato, Maize, and Pineapple pass.
-# Every animal, insect, human, vehicle, building, sky, water or other crop
-# that the ONNX model scores confidently will be rejected as non-agricultural.
+
 FARM_CONTEXT_ALLOWED: set = {
     # ── MAIZE (exact ImageNet-1K classes that MobileNetV2 predicts for maize) ──
     "corn",       # ImageNet 987
@@ -85,6 +82,37 @@ FARM_CONTEXT_ALLOWED: set = {
     "coral_fungus",   # 991 — coral-shaped fungal growth on stems
     "hen-of-the-woods",  # 996 — leafy fungal cluster
     "bolete",         # 997 — fleshy fungal body
+}
+
+# ── Non-Target Plants & Crops (for informative rejection prompts) ─────────────
+# When an image containing one of these is uploaded, the validator identifies
+# the exact plant and informs the user that only Tomato, Maize, and Pineapple are supported.
+KNOWN_PLANT_LABELS: Dict[str, str] = {
+    # Vegetables & root crops
+    "head_cabbage":          "Cabbage",
+    "broccoli":              "Broccoli",
+    "cauliflower":           "Cauliflower",
+    "mashed_potato":         "Potato",
+    # Fruits & tree crops
+    "banana":                "Banana",
+    "granny_smith":          "Apple",
+    "strawberry":            "Strawberry",
+    "orange":                "Orange / Citrus",
+    "lemon":                 "Lemon / Citrus",
+    "fig":                   "Fig",
+    "jackfruit":             "Jackfruit",
+    "custard_apple":         "Custard Apple",
+    "pomegranate":           "Pomegranate",
+    "acorn":                 "Oak Acorn",
+    "buckeye":               "Chestnut / Buckeye",
+    # Flowers & wild plants
+    "rapeseed":              "Rapeseed / Canola",
+    "daisy":                 "Daisy",
+    "yellow_lady's_slipper": "Wild Orchid",
+    "pot":                   "Potted Plant / Flowerpot",
+    # Non-crop fungi
+    "stinkhorn":             "Wild Stinkhorn Fungus",
+    "earthstar":             "Wild Earthstar Fungus",
 }
 
 
@@ -416,14 +444,22 @@ def validate_crop_image(
         total_supported          = sum(scores[c] for c in CROP_SEMANTIC_KEYWORDS)
 
         # -- Non-agricultural image detection (whitelist-based) --
-        # Anything NOT in FARM_CONTEXT_ALLOWED is not expected in a crop field.
-        # Approach: if the top prediction (>= 35%) is outside our allowed set,
-        # or if the top-3 predictions are ALL outside it with no crop signal → reject.
+        # FARM_CONTEXT_ALLOWED contains ~20 labels for the 3 target crops + disease markers.
+        # Anything outside that set with sufficient confidence → reject with a helpful message.
 
         top_label, top_prob = top_preds[0] if top_preds else ("", 0.0)
 
-        # Tier 1: high-confidence non-agricultural top prediction
+        # Tier 1: high-confidence non-allowed top prediction (≥ 35%)
         if top_prob >= 0.35 and top_label not in FARM_CONTEXT_ALLOWED:
+            if top_label in KNOWN_PLANT_LABELS:
+                plant_name = KNOWN_PLANT_LABELS[top_label]
+                return (
+                    False,
+                    f"Unsupported Plant Detected: We identified '{plant_name}' in your photo. "
+                    f"AgroWatch Ghana is calibrated specifically for Tomato, Maize, and Pineapple. "
+                    f"Please switch to a supported plot or upload clear photos of your {crop_display} crop.",
+                    metrics,
+                )
             friendly = top_label.replace("_", " ").title()
             return (
                 False,
@@ -433,12 +469,21 @@ def validate_crop_image(
                 metrics,
             )
 
-        # Tier 2: majority of top-5 predictions are non-agricultural and no crop found
+        # Tier 2: ≥ 3 of the top-5 predictions are non-allowed and no crop signal at all
         non_farm_in_top5 = sum(
             1 for lbl, prob in top_preds[:5]
             if prob >= 0.05 and lbl not in FARM_CONTEXT_ALLOWED
         )
         if non_farm_in_top5 >= 3 and total_supported < 0.05:
+            if top_label in KNOWN_PLANT_LABELS:
+                plant_name = KNOWN_PLANT_LABELS[top_label]
+                return (
+                    False,
+                    f"Unsupported Plant Detected: We identified '{plant_name}' in your photo. "
+                    f"AgroWatch Ghana is calibrated specifically for Tomato, Maize, and Pineapple. "
+                    f"Please switch to a supported plot or upload clear photos of your {crop_display} crop.",
+                    metrics,
+                )
             friendly = top_label.replace("_", " ").title()
             return (
                 False,

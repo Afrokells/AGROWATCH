@@ -37,6 +37,7 @@
     "psycopg",
     "psycopg2",
     "staticfiles",
+
     "neem",
     "Sobel",
     "mlweights",
