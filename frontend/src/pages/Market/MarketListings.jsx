@@ -9,7 +9,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { marketAPI, messagingAPI } from '../../services/api';
 import { CROP_ICONS } from '../../data/constants';
-import ListingCard from '../../components/Market/ListingCard';
 
 export default function MarketListings() {
   const { isFarmer, user } = useAuth();
@@ -118,14 +117,65 @@ export default function MarketListings() {
           )}
         </Card>
       ) : (
-        <div className="grid-auto" style={{ gap: 'var(--sp-6)' }}>
+        <div className="grid-auto">
           {listings.map(listing => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              onContact={openContactModal}
-              isOwner={Boolean(isFarmer && user && (listing.farmer === user.id || listing.farmer_id === user.id || listing.farmer_name === user.full_name))}
-            />
+            <Card key={listing.id} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)', padding: 'var(--sp-5)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', gap: 'var(--sp-3)', alignItems: 'center' }}>
+                  <div style={{ 
+                    width: 40, height: 40, borderRadius: 'var(--radius-md)', 
+                    background: 'var(--accent-dim)', color: 'var(--accent)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    {CROP_ICONS[listing.crop_type]}
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 600, textTransform: 'capitalize' }}>
+                      {listing.crop_type}
+                    </h3>
+                    <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                      {listing.farmer_name} · {listing.farmer_phone}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent)' }}>
+                    GH₵ {Number(listing.asking_price_ghs).toFixed(2)}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>per kg</div>
+                </div>
+              </div>
+
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.5, flex: 1 }}>
+                {listing.description}
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', padding: 'var(--sp-3)', background: 'var(--bg-input)', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: '0.8125rem', color: 'var(--text-primary)' }}>
+                  <Tag size={14} className="text-muted" /> 
+                  <span style={{ fontWeight: 600 }}>{listing.quantity_kg} kg</span> Available
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: '0.8125rem', color: 'var(--text-primary)' }}>
+                  <Calendar size={14} className="text-muted" /> 
+                  Harvest: <span style={{ fontWeight: 500 }}>{new Date(listing.harvest_date).toLocaleDateString()}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: '0.8125rem', color: 'var(--text-primary)' }}>
+                  <MapPin size={14} className="text-muted" /> 
+                  {listing.farmer_district}, {listing.farmer_region}
+                </div>
+              </div>
+
+              <div style={{ marginTop: 'var(--sp-2)' }}>
+                <Button 
+                  fullWidth 
+                  variant="primary" 
+                  icon={<MessageCircle size={16} />}
+                  onClick={() => openContactModal(listing)}
+                >
+                  Contact Seller
+                </Button>
+              </div>
+            </Card>
           ))}
         </div>
       )}
