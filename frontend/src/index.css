@@ -973,3 +973,345 @@ select.form-input option {
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── Modern Market Listing Card System (Theme-Aligned) ─────────────────── */
+.market-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-xl);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease;
+  min-height: 400px;
+  box-sizing: border-box;
+}
+
+.market-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg), 0 12px 28px var(--card-glow);
+  border-color: var(--card-border-hover);
+}
+
+/* Crop Theme Specific Tokens */
+.market-card--tomato {
+  --card-accent: #ef4444;
+  --card-glow: rgba(239, 68, 68, 0.18);
+  --card-border-hover: rgba(239, 68, 68, 0.45);
+  --card-gradient-btn: linear-gradient(135deg, #ef4444, #dc2626);
+  --card-btn-text: #ffffff;
+}
+
+.market-card--maize {
+  --card-accent: #f59e0b;
+  --card-glow: rgba(245, 158, 11, 0.18);
+  --card-border-hover: rgba(245, 158, 11, 0.45);
+  --card-gradient-btn: linear-gradient(135deg, #f59e0b, #d97706);
+  --card-btn-text: #07160d;
+}
+
+.market-card--pineapple {
+  --card-accent: #22c55e;
+  --card-glow: rgba(34, 197, 94, 0.18);
+  --card-border-hover: rgba(34, 197, 94, 0.45);
+  --card-gradient-btn: linear-gradient(135deg, #22c55e, #16a34a);
+  --card-btn-text: #07160d;
+}
+
+/* Hero Showcase Container with Selected Crop Image in Background */
+.market-card__hero {
+  position: relative;
+  height: 185px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--sp-3);
+  box-sizing: border-box;
+}
+
+.market-card__hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+
+.market-card:hover .market-card__hero-img {
+  transform: scale(1.08);
+}
+
+/* Scrim Gradient on Hero that blends directly into active theme's card surface */
+.market-card__hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Light Mode Scrim */
+[data-theme='light'] .market-card__hero-scrim {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.35) 45%,
+    rgba(255, 255, 255, 0.85) 85%,
+    var(--bg-card) 100%
+  );
+}
+
+/* Dark Mode Scrim */
+[data-theme='dark'] .market-card__hero-scrim {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 20, 15, 0.25) 0%,
+    rgba(10, 20, 15, 0.55) 45%,
+    rgba(17, 32, 23, 0.88) 85%,
+    var(--bg-card) 100%
+  );
+}
+
+/* Hero Elements */
+.market-card__hero-top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.market-card__crop-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+}
+
+[data-theme='light'] .market-card__crop-pill {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .market-card__crop-pill {
+  background: rgba(10, 20, 15, 0.85);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.market-card__price-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-weight: 800;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+
+[data-theme='light'] .market-card__price-badge {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--card-accent);
+  border: 1px solid var(--card-accent);
+}
+
+[data-theme='dark'] .market-card__price-badge {
+  background: rgba(10, 20, 15, 0.92);
+  color: var(--card-accent);
+  border: 1px solid var(--card-accent);
+}
+
+.market-card__hero-bottom {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.market-card__stock-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-theme='light'] .market-card__stock-chip {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] .market-card__stock-chip {
+  background: rgba(10, 20, 15, 0.85);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Card Body Section - seamlessly integrated with theme */
+.market-card__body {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--sp-4);
+  gap: var(--sp-3);
+  box-sizing: border-box;
+  background: var(--bg-card);
+}
+
+/* Subtle organic ambient watermark of the crop picture inside body */
+.market-card__body-watermark {
+  position: absolute;
+  right: -15px;
+  bottom: -15px;
+  width: 130px;
+  height: 130px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.05;
+  pointer-events: none;
+  filter: grayscale(20%);
+}
+
+[data-theme='dark'] .market-card__body-watermark {
+  opacity: 0.08;
+}
+
+/* Farmer Row */
+.market-card__farmer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.market-card__farmer-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.market-card__farmer-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.market-card__farmer-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.market-card__farmer-phone {
+  font-size: 0.78125rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Tags (Location, Harvest) */
+.market-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.market-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78125rem;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  font-weight: 500;
+}
+
+/* Description */
+.market-card__desc {
+  font-size: 0.84375rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Action CTA */
+.market-card__cta {
+  margin-top: auto;
+  padding-top: var(--sp-2);
+}
+
+.market-card__cta-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--card-gradient-btn);
+  color: var(--card-btn-text);
+  box-shadow: 0 4px 14px var(--card-glow);
+}
+
+.market-card__cta-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
